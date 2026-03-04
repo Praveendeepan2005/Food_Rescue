@@ -9,8 +9,8 @@
 // Database Credentials
 // Update these to match your Oracle XE installation
 // -----------------------------------------------------------
-define('DB_USERNAME', 'system');          // Oracle username (default: system or your schema user)
-define('DB_PASSWORD', 'oracle');          // Oracle password (set during XE installation)
+define('DB_USERNAME', 'foodrescue');       // Using dedicated schema user
+define('DB_PASSWORD', 'FoodRescue2025');   // Password set during setup
 define('DB_CONNECTION_STRING', 'localhost:1521/XEPDB1'); // Oracle XE 21c plug-in DB: XEPDB1
                                                           // For older XE: use 'localhost:1521/XE'
 

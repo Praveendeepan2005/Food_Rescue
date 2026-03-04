@@ -41,9 +41,9 @@ requireMethod('POST');
 $input = getRequestBody();
 requireFields($input, ['email', 'password']);
 
-$email        = trim($input['email']);
-$plainPass    = trim($input['password']);
-$deviceToken  = isset($input['device_token']) ? trim($input['device_token']) : null;
+$email = trim($input['email']);
+$plainPass = trim($input['password']);
+$deviceToken = isset($input['device_token']) ? trim($input['device_token']) : null;
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     sendError('Invalid email address format.', 422);
@@ -60,7 +60,7 @@ $conn = getDBConnection();
 //    Only expose non-sensitive fields in the response later
 // -----------------------------------------------------------
 $sql = '
-    SELECT user_id, name, email, password, role, phone, latitude, longitude, device_token
+    SELECT user_id, name, email, password, role, phone, latitude, longitude, device_token, status
     FROM   users
     WHERE  email = :email
 ';
@@ -86,14 +86,19 @@ if (!$user || !password_verify($plainPass, $user['PASSWORD'])) {
     sendError('Invalid email or password.', 401);
 }
 
+// Check account status
+if (strtoupper($user['STATUS']) === 'SUSPENDED') {
+    sendError('Your account has been suspended. Please contact the administrator.', 403);
+}
+
 // -----------------------------------------------------------
 // 5. Update device_token if provided (for FCM notifications)
 // -----------------------------------------------------------
 if ($deviceToken !== null && $deviceToken !== $user['DEVICE_TOKEN']) {
-    $updateSql  = 'UPDATE users SET device_token = :token WHERE user_id = :id';
+    $updateSql = 'UPDATE users SET device_token = :token WHERE user_id = :id';
     $updateStmt = oci_parse($conn, $updateSql);
     oci_bind_by_name($updateStmt, ':token', $deviceToken);
-    $userId = (int)$user['USER_ID'];
+    $userId = (int) $user['USER_ID'];
     oci_bind_by_name($updateStmt, ':id', $userId);
 
     if (!oci_execute($updateStmt, OCI_NO_AUTO_COMMIT)) {
@@ -110,11 +115,12 @@ if ($deviceToken !== null && $deviceToken !== $user['DEVICE_TOKEN']) {
 // 6. Return user data (NEVER include password in response)
 // -----------------------------------------------------------
 sendSuccess([
-    'user_id'   => (int)$user['USER_ID'],
-    'name'      => $user['NAME'],
-    'email'     => $user['EMAIL'],
-    'role'      => $user['ROLE'],
-    'phone'     => $user['PHONE'],
-    'latitude'  => $user['LATITUDE']  !== null ? (float)$user['LATITUDE']  : null,
-    'longitude' => $user['LONGITUDE'] !== null ? (float)$user['LONGITUDE'] : null,
+    'user_id' => (int) $user['USER_ID'],
+    'name' => $user['NAME'],
+    'email' => $user['EMAIL'],
+    'role' => $user['ROLE'],
+    'status' => $user['STATUS'],
+    'phone' => $user['PHONE'],
+    'latitude' => $user['LATITUDE'] !== null ? (float) $user['LATITUDE'] : null,
+    'longitude' => $user['LONGITUDE'] !== null ? (float) $user['LONGITUDE'] : null,
 ], 'Login successful. Welcome back, ' . $user['NAME'] . '!');
