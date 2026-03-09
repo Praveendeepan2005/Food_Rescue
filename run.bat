@@ -5,16 +5,18 @@ color 0A
 
 :: ============================================================
 ::   FOOD RESCUE - UNIFIED APPLICATION LAUNCHER
-::   Controls: Oracle DB + Apache + Frontend Server
+::   Controls: Oracle DB + Apache + Automatic Workspace Sync
 :: ============================================================
 
+set "PROJECT_NAME=food-rescue-api"
 set "ORACLE_HOME=C:\app\Asus\product\21c\dbhomeXE"
 set "ORACLE_BIN=%ORACLE_HOME%\bin"
 set "XAMPP_HOME=C:\xampp"
+set "HTDOCS=%XAMPP_HOME%\htdocs"
 set "APACHE_BIN=%XAMPP_HOME%\apache\bin\httpd.exe"
 set "APACHE_CONF=%XAMPP_HOME%\apache\conf\httpd.conf"
-set "FRONTEND_DIR=%~dp0food-rescue-web"
-set "PORT=3000"
+set "APACHE_PORT=8080"
+set "WORKSPACE=%~dp0backend"
 
 cls
 echo.
@@ -34,20 +36,38 @@ if %errorLevel% NEQ 0 (
 )
 
 :: ─────────────────────────────────────────────────────────────
-:: STEP 2: Pre-Launch Cleanup (Ensures a Fresh Start)
+:: STEP 2: Workspace Synchronization
 :: ─────────────────────────────────────────────────────────────
-echo  [1/6] Cleaning up existing sessions...
+echo  [1/6] Syncing Workspace to Apache...
+if not exist "%WORKSPACE%" (
+    echo        ERROR: Workspace folder 'backend' not found!
+    echo        Ensure you are running this from the project root.
+    pause
+    exit /b
+)
+
+:: Sync API backend to htdocs / food-rescue-api
+robocopy "%WORKSPACE%" "%HTDOCS%\food-rescue-api" /E /MT /R:0 /W:0 /NJH /NJS /NDL /NC /NS >nul
+:: Sync Web frontend to htdocs (Root)
+robocopy "%~dp0frontend" "%HTDOCS%" /E /MT /R:0 /W:0 /NJH /NJS /NDL /NC /NS >nul
+echo        Synchronization complete.
+echo.
+
+:: ─────────────────────────────────────────────────────────────
+:: STEP 3: Pre-Launch Cleanup
+:: ─────────────────────────────────────────────────────────────
+echo  [2/6] Cleaning up existing sessions...
 taskkill /f /im httpd.exe >nul 2>&1
-for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":%PORT% " ^| findstr "LISTENING" 2^>nul') do (
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":%APACHE_PORT% " ^| findstr "LISTENING" 2^>nul') do (
     taskkill /f /pid %%a >nul 2>&1
 )
 echo        Cleanup complete.
 echo.
 
 :: ─────────────────────────────────────────────────────────────
-:: STEP 3: Start Oracle Services
+:: STEP 4: Start Oracle Services
 :: ─────────────────────────────────────────────────────────────
-echo  [2/6] Verifying Oracle Database Services...
+echo  [3/6] Verifying Oracle Database Services...
 sc query OracleServiceXE | findstr "RUNNING" >nul 2>&1
 if %errorLevel% NEQ 0 (
     echo        Starting OracleServiceXE...
@@ -63,31 +83,21 @@ echo        Oracle services are ready.
 echo.
 
 :: ─────────────────────────────────────────────────────────────
-:: STEP 4: Initialise Database
+:: STEP 5: Initialise Database
 :: ─────────────────────────────────────────────────────────────
-echo  [3/6] Opening XEPDB1 Database...
+echo  [4/6] Opening XEPDB1 Database...
 echo ALTER PLUGGABLE DATABASE XEPDB1 OPEN; EXIT; | "%ORACLE_BIN%\sqlplus.exe" -S "/ as sysdba" >nul 2>&1
 echo        Database is open.
 echo.
 
 :: ─────────────────────────────────────────────────────────────
-:: STEP 5: Start Apache (Backend API)
+:: STEP 6: Start Apache (Unified Application)
 :: ─────────────────────────────────────────────────────────────
-echo  [4/6] Launching Apache Backend...
+echo  [5/6] Launching Unified Server...
 set "PATH=%ORACLE_BIN%;%PATH%"
-start /b "" "%APACHE_BIN%" -f "%APACHE_CONF%"
+start /b "Food Rescue API Server" "%APACHE_BIN%" -f "%APACHE_CONF%"
 timeout /t 2 /nobreak >nul
-echo        API Server running on port 80.
-echo.
-
-:: ─────────────────────────────────────────────────────────────
-:: STEP 6: Start Frontend (Web UI)
-:: ─────────────────────────────────────────────────────────────
-echo  [5/6] Launching Frontend Server...
-cd /d "%FRONTEND_DIR%"
-start "Food Rescue Frontend" /min cmd /c "npx -y serve . -l %PORT% --no-clipboard"
-timeout /t 3 /nobreak >nul
-echo        Web UI running on port %PORT%.
+echo        Server running on port %APACHE_PORT%.
 echo.
 
 :: ─────────────────────────────────────────────────────────────
@@ -99,17 +109,26 @@ echo  ============================================================
 echo   ACCESS INFORMATION
 echo  ============================================================
 echo.
-echo   >> WEB APPLICATION : http://localhost:%PORT%
-echo   >> BACKEND DIAGNOSTICS : http://localhost/food-rescue-api/test_connection.php
+echo   >> APPLICATION URL : http://localhost:%APACHE_PORT%/index.php
 echo.
 echo  ============================================================
 echo.
 echo  Opening browser...
-start "" "http://localhost:%PORT%"
-
-echo  KEEP THIS WINDOW OPEN while using the application.
-echo  Press CTRL+C or Close this window to exit.
+echo  Please notice: The application is now running on the root directory.
 echo.
+start "" "http://localhost:%APACHE_PORT%/index.php"
 
-:: Keep script alive
+echo.
+echo  ------------------------------------------------------------
+echo  KEEP THIS WINDOW OPEN while using the application.
+echo  This window monitors background services.
+echo  Press any key to stop all services and exit.
+echo  ------------------------------------------------------------
 pause >nul
+
+echo.
+echo  Stopping services...
+taskkill /f /im httpd.exe >nul 2>&1
+echo  Exiting.
+timeout /t 2 >nul
+exit

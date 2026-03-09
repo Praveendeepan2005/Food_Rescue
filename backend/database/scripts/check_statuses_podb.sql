@@ -1,0 +1,5 @@
+-- Connect to XEPDB1
+ALTER SESSION SET CONTAINER = XEPDB1;
+SELECT DISTINCT status FROM food_alerts;
+SELECT DISTINCT status FROM claims;
+EXIT;

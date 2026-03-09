@@ -1,0 +1,6 @@
+DESC food_alerts;
+DESC claims;
+DESC users;
+DESC ngo_inventory;
+SELECT TABLE_NAME FROM USER_TABLES WHERE TABLE_NAME='NGO_INVENTORY';
+EXIT;

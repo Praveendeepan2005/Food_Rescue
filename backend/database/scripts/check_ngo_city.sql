@@ -1,0 +1,3 @@
+SET LINESIZE 200
+SELECT city FROM users WHERE user_id = 6;
+EXIT;

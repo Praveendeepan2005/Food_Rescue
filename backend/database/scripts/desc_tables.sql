@@ -1,0 +1,6 @@
+SET PAGESIZE 100
+SET LINESIZE 200
+DESC users;
+DESC food_alerts;
+DESC claims;
+EXIT;

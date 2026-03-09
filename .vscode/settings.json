@@ -1,5 +1,26 @@
 {
     "php.validate.enable": false,
+    // --- Devsense PHP extension settings (fixes PHP0417/PHP0415 OCI8 false positives) ---
+    "php.stubs": [
+        "oci8",
+        "standard",
+        "core",
+        "date",
+        "pcre",
+        "json",
+        "openssl",
+        "filter",
+        "hash",
+        "mbstring",
+        "curl",
+        "session"
+    ],
+    "php.problems.exclude": {
+        "**": [
+            "PHP0417",
+            "PHP0415"
+        ]
+    },
     "intelephense.stubs": [
         "apache",
         "bcmath",
