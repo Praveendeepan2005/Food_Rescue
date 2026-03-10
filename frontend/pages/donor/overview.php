@@ -42,7 +42,8 @@ include __DIR__ . '/../../includes/header.php';
         <div
             style="background:#DCFCE7;border:1px solid #4CAF50;color:#1B5E20;padding:16px 20px;border-radius:6px;margin:24px 0;">
             <i class="fa-solid fa-hand-holding-heart" style="margin-right:8px;"></i> You have helped provide <strong
-                style="font-size:1.1rem;"><span class="count-up" data-target="<?= $stats['meals_donated'] ?>">0</span> meals</strong> to people in
+                style="font-size:1.1rem;"><span class="count-up" data-target="<?= $stats['meals_donated'] ?>">0</span>
+                meals</strong> to people in
             need.
         </div>
 
@@ -154,7 +155,7 @@ include __DIR__ . '/../../includes/header.php';
                         obs.unobserve(counter);
                         return;
                     }
-                    
+
                     let count = 0;
                     const updateCount = () => {
                         const increment = target / 30; // 30 frames

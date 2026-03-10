@@ -84,6 +84,108 @@ $status = strtoupper($tracking['STATUS'] ?? 'PENDING');
     .btn-back:hover {
         text-decoration: underline;
     }
+
+    /* Animated Workflow Styles */
+    .flow-container {
+        position: relative;
+        padding: 40px 20px;
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #E5E7EB;
+        margin-top: 24px;
+        overflow: hidden;
+    }
+
+    .flow-line {
+        position: absolute;
+        top: 60px;
+        left: 10%;
+        right: 10%;
+        height: 4px;
+        background: #E5E7EB;
+        z-index: 1;
+        border-radius: 2px;
+    }
+
+    .flow-progress {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background: linear-gradient(to right, #8b5cf6, #2E7D32);
+        width: 0%;
+        transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 2;
+    }
+
+    .flow-steps {
+        position: relative;
+        z-index: 3;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 0 5%;
+    }
+
+    .step-node {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 120px;
+        text-align: center;
+    }
+
+    .node-circle {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid #E5E7EB;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: #9CA3AF;
+        margin-bottom: 12px;
+        transition: all 0.5s ease;
+        box-shadow: 0 0 0 4px #fff;
+    }
+
+    .step-node.done .node-circle {
+        border-color: #2E7D32;
+        color: #fff;
+        background: #2E7D32;
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+    }
+
+    .step-node.active .node-circle {
+        border-color: #8b5cf6;
+        color: #8b5cf6;
+        animation: pulseShadow 2s infinite;
+    }
+
+    @keyframes pulseShadow {
+        0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+    }
+
+    .node-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: #374151;
+        text-transform: uppercase;
+        line-height: 1.2;
+    }
+
+    .node-sub {
+        font-size: 0.65rem;
+        color: #9CA3AF;
+        margin-top: 4px;
+        font-weight: 600;
+    }
+
+    .step-node.done .node-label { color: #111827; }
 </style>
 
 <div class="dashboard-container">
@@ -126,7 +228,7 @@ $status = strtoupper($tracking['STATUS'] ?? 'PENDING');
                 <div style="text-align:right;">
                     <div class="track-meta">Delivery Location</div>
                     <div class="track-value"><i class="fa-solid fa-map-pin" style="color:#2E7D32;margin-right:4px;"></i>
-                        <?= htmlspecialchars($tracking['NGO_NAME']) ?></div>
+                        <?= htmlspecialchars($tracking['NGO_ADDRESS'] ?: $tracking['NGO_NAME']) ?></div>
                 </div>
             </div>
             <hr style="border:none;border-top:1px solid #E5E7EB;margin:16px 0;">
@@ -147,8 +249,93 @@ $status = strtoupper($tracking['STATUS'] ?? 'PENDING');
             <h3 style="font-size:1.1rem; font-weight:700; color:#111827; margin-bottom:16px;">Delivery Live Route</h3>
             <div id="trackingMap"></div>
         </div>
+
+        <?php 
+            $curStatus = strtoupper($tracking['STATUS'] ?? 'PENDING');
+            $statusMap = [
+                'PENDING' => 1,
+                'ASSIGNED' => 2,
+                'PICKUP_STARTED' => 3,
+                'ON_THE_WAY' => 3,
+                'FOOD_PICKED' => 4,
+                'PICKED_UP' => 4,
+                'DELIVERING' => 5,
+                'ON_DELIVERY' => 5,
+                'DELIVERED' => 6,
+                'COMPLETED' => 6
+            ];
+            $currentStep = $statusMap[$curStatus] ?? 1;
+            if (empty($tracking['VOLUNTEER_NAME']) && $currentStep > 1) $currentStep = 1;
+            
+            $startCity = htmlspecialchars($tracking['CITY'] ?? 'Source');
+            $endCity = htmlspecialchars($tracking['NGO_CITY'] ?? 'NGO');
+        ?>
+
+        <div class="flow-container">
+            <div style="margin-bottom:24px;">
+                <h3 style="font-size:1rem; font-weight:800; color:#111827; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-route" style="color:#8b5cf6;"></i> How NGO Tasks Reach People
+                </h3>
+                <p style="color:#6B7280; font-size:0.8rem;">Visualizing the journey from <?= $startCity ?> to <?= $endCity ?>.</p>
+            </div>
+            
+            <div class="flow-line">
+                <div class="flow-progress" id="flowBar"></div>
+            </div>
+            
+            <div class="flow-steps">
+                <!-- Step 1 -->
+                <div class="step-node <?= $currentStep >= 1 ? 'done' : '' ?>">
+                    <div class="node-circle"><i class="fa-solid fa-building"></i></div>
+                    <div class="node-label">NGO CREATES<br>TASK</div>
+                    <div class="node-sub">Step 1</div>
+                </div>
+                <!-- Step 2 -->
+                <div class="step-node <?= $currentStep >= 2 ? 'done' : ($currentStep == 1 ? 'active' : '') ?>">
+                    <div class="node-circle"><i class="fa-solid fa-bell"></i></div>
+                    <div class="node-label">VOLUNTEER<br>NOTIFIED</div>
+                    <div class="node-sub">Step 2</div>
+                </div>
+                <!-- Step 3 -->
+                <div class="step-node <?= $currentStep >= 3 ? 'done' : ($currentStep == 2 ? 'active' : '') ?>">
+                    <div class="node-circle"><i class="fa-solid fa-user-check"></i></div>
+                    <div class="node-label">VOLUNTEER<br>ACCEPTS</div>
+                    <div class="node-sub">Step 3</div>
+                </div>
+                <!-- Step 4 -->
+                <div class="step-node <?= $currentStep >= 4 ? 'done' : ($currentStep == 3 ? 'active' : '') ?>">
+                    <div class="node-circle"><i class="fa-solid fa-motorcycle"></i></div>
+                    <div class="node-label">PICKUP IN<br>PROGRESS</div>
+                    <div class="node-sub">Step 4</div>
+                </div>
+                <!-- Step 5 -->
+                <div class="step-node <?= $currentStep >= 5 ? 'done' : ($currentStep == 4 ? 'active' : '') ?>">
+                    <div class="node-circle"><i class="fa-solid fa-box-open"></i></div>
+                    <div class="node-label">FOOD<br>COLLECTED</div>
+                    <div class="node-sub">Step 5</div>
+                </div>
+                <!-- Step 6 -->
+                <div class="step-node <?= $currentStep >= 6 ? 'done' : ($currentStep == 5 ? 'active' : '') ?>">
+                    <div class="node-circle"><i class="fa-solid fa-handshake-angle"></i></div>
+                    <div class="node-label">DELIVERED!</div>
+                    <div class="node-sub">Done ✓</div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+    // Animate the flow bar based on progress
+    document.addEventListener("DOMContentLoaded", function() {
+        const step = <?= (int)$currentStep ?>;
+        // Map 1-6 steps to 0-100% width on the 80% wide bar
+        const perc = ((step - 1) / 5) * 100;
+        setTimeout(() => {
+            document.getElementById('flowBar').style.width = perc + '%';
+        }, 800);
+    });
+</script>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
@@ -190,8 +377,11 @@ $status = strtoupper($tracking['STATUS'] ?? 'PENDING');
         });
 
         // Add pins for donor and NGO
-        L.marker([dLat, dLng], { icon: donorIcon }).addTo(map).bindPopup("<b>Donor</b><br>Pickup Point");
-        L.marker([nLat, nLng], { icon: ngoIcon }).addTo(map).bindPopup("<b>Your NGO</b><br>Drop Point");
+        const pickupAddr = <?= json_encode($tracking['PICKUP_ADDRESS'] ?: $tracking['DONOR_NAME']) ?>;
+        const dropAddr = <?= json_encode($tracking['NGO_ADDRESS'] ?: $tracking['NGO_NAME']) ?>;
+
+        L.marker([dLat, dLng], { icon: donorIcon }).addTo(map).bindPopup(`<b>Pickup Location</b><br>${pickupAddr}`);
+        L.marker([nLat, nLng], { icon: ngoIcon }).addTo(map).bindPopup(`<b>Delivery Location</b><br>${dropAddr}`);
 
         // Route polyline
         L.polyline([[dLat, dLng], [nLat, nLng]], { color: '#2E7D32', weight: 4, dashArray: '5, 10' }).addTo(map);

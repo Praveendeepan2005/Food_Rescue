@@ -239,33 +239,7 @@ include __DIR__ . '/../../includes/header.php';
                                 mode: 'index',
                                 intersect: false,
                             },
-                            animation: {
-                                x: {
-                                    type: 'number',
-                                    easing: 'linear',
-                                    duration: 1000,
-                                    from: NaN, // the point is initially skipped
-                                    delay(ctx) {
-                                        if (ctx.type !== 'data' || ctx.xStarted) return 0;
-                                        ctx.xStarted = true;
-                                        // Stagger by dataset index so they draw one after another!
-                                        return ctx.datasetIndex * 800 + ctx.index * 100;
-                                    }
-                                },
-                                y: {
-                                    type: 'number',
-                                    easing: 'easeOutElastic', // Bouncy effect
-                                    duration: 1500,
-                                    from: (ctx) => {
-                                        return ctx.chart.scales.y.getPixelForValue(0);
-                                    },
-                                    delay(ctx) {
-                                        if (ctx.type !== 'data' || ctx.yStarted) return 0;
-                                        ctx.yStarted = true;
-                                        return ctx.datasetIndex * 800 + ctx.index * 100;
-                                    }
-                                }
-                            },
+                            animation: false,
                             plugins: {
                                 legend: {
                                     display: true,

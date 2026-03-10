@@ -445,8 +445,32 @@ include __DIR__ . '/includes/header.php';
     </div>
 </section>
 
-<footer class="site-footer">
-    © 2025 Food Rescue Platform. Built to end hunger and reduce waste.
+<footer class="site-footer"
+    style="background: linear-gradient(135deg, #0a2e1f 0%, #111827 100%); color: #fff; padding: 60px 20px; text-align: center; border-top: 4px solid #2E7D32; position: relative;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+        <div style="margin-bottom: 30px; display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
+            <a href="/pages/footer/about.php"
+                style="color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 500; transition: color 0.3s;"
+                onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Our
+                Story</a>
+            <a href="/pages/footer/impact.php"
+                style="color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 500; transition: color 0.3s;"
+                onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Impact</a>
+            <a href="/pages/footer/donors-guide.php"
+                style="color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 500; transition: color 0.3s;"
+                onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Donor
+                Guide</a>
+            <a href="/pages/footer/contact.php"
+                style="color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 500; transition: color 0.3s;"
+                onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Contact</a>
+            <a href="/pages/footer/privacy.php"
+                style="color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 500; transition: color 0.3s;"
+                onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Privacy</a>
+        </div>
+        <div style="opacity: 0.5; font-size: 0.85rem; margin-top: 20px;">
+            &copy; <?= date('Y') ?> Food Rescue Platform. Empowering change through sustainability.
+        </div>
+    </div>
 </footer>
 
 <script>
@@ -483,4 +507,4 @@ include __DIR__ . '/includes/header.php';
     });
 </script>
 
-<?php include __DIR__ . '/includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/simple_footer.php'; ?>

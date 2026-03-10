@@ -19,9 +19,9 @@ $ngoId = (int) $_GET['ngo_id'];
 $conn = getDBConnection();
 
 $sql = "
-    SELECT fa.alert_id, fa.food_type, fa.quantity, fa.delivery_status as status,
+    SELECT fa.alert_id, fa.food_type, fa.quantity, fa.delivery_status as status, fa.city,
            d.name as donor_name, fa.latitude as donor_lat, fa.longitude as donor_lng, fa.pickup_address,
-           n.name as ngo_name, n.latitude as ngo_lat, n.longitude as ngo_lng, n.address as ngo_address,
+           n.name as ngo_name, n.latitude as ngo_lat, n.longitude as ngo_lng, n.address as ngo_address, n.city as ngo_city,
            v.name as volunteer_name, v.latitude as vol_lat, v.longitude as vol_lng, v.phone as vol_phone
     FROM food_alerts fa
     JOIN users d ON fa.donor_id = d.user_id
