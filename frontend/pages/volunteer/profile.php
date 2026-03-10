@@ -288,7 +288,7 @@ include __DIR__ . '/../../includes/header.php';
         <?php include __DIR__ . '/../../includes/flash.php'; ?>
 
         <!-- Hero Card -->
-        <div class="prof-hero">
+        <div class="prof-hero reveal">
             <div class="prof-avatar">
                 <?= strtoupper(substr($profile['NAME'] ?? 'V', 0, 1)) ?>
             </div>
@@ -331,7 +331,7 @@ include __DIR__ . '/../../includes/header.php';
 
         <div class="prof-layout">
             <!-- Edit Profile Form -->
-            <div class="form-card">
+            <div class="form-card reveal reveal-delay-1">
                 <div class="form-card-title">
                     <i class="fa-solid fa-pen-to-square" style="color:#8b5cf6;"></i>
                     Edit Profile
@@ -365,8 +365,7 @@ include __DIR__ . '/../../includes/header.php';
                         <label>Availability Status</label>
                         <select name="availability">
                             <?php foreach (['FLEXIBLE', 'WEEKDAYS', 'WEEKENDS', 'MORNINGS', 'EVENINGS', 'FULL_TIME'] as $opt): ?>
-                                <option value="<?= $opt ?>" <?= ($profile['AVAILABILITY'] ?? '') === $opt ? 'selected' : '' ?>
-                                    >
+                                <option value="<?= $opt ?>" <?= ($profile['AVAILABILITY'] ?? '') === $opt ? 'selected' : '' ?>>
                                     <?= ucfirst(strtolower($opt)) ?>
                                 </option>
                             <?php endforeach; ?>
@@ -381,7 +380,7 @@ include __DIR__ . '/../../includes/header.php';
             <!-- Right Side: Achievements + Account Info -->
             <div>
                 <!-- Achievements -->
-                <div class="form-card right" style="margin-bottom:24px;">
+                <div class="form-card right reveal reveal-delay-2" style="margin-bottom:24px;">
                     <div class="form-card-title">
                         <i class="fa-solid fa-trophy" style="color:#d97706;"></i>
                         Your Achievements
@@ -427,8 +426,8 @@ include __DIR__ . '/../../includes/header.php';
                             </span>
                         </div>
                         <div style="background:#F1F5F9;border-radius:99px;height:8px;overflow:hidden;">
-                            <div style="height:8px;background:linear-gradient(90deg,#8b5cf6,#d97706);border-radius:99px;width:0%;transition:width 1.2s ease;"
-                                data-width="<?= min(100, round($points / 500 * 100)) ?>%" class="anim-bar"></div>
+                            <div style="height:8px;background:linear-gradient(90deg,#8b5cf6,#d97706);border-radius:99px;width:0%;"
+                                class="count-bar" data-width="<?= min(100, round($points / 500 * 100)) ?>%"></div>
                         </div>
                         <div style="font-size:.7rem;color:#9CA3AF;margin-top:4px;">
                             <?= max(0, 500 - $points) ?> pts more to reach Gold Badge 🥇
@@ -437,7 +436,7 @@ include __DIR__ . '/../../includes/header.php';
                 </div>
 
                 <!-- Account Info -->
-                <div class="form-card right">
+                <div class="form-card right reveal reveal-delay-3">
                     <div class="form-card-title">
                         <i class="fa-solid fa-shield-halved" style="color:#2E7D32;"></i>
                         Account Information

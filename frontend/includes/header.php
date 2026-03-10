@@ -3,7 +3,7 @@
  * header.php  — Shared <head> include
  * Requires $pageTitle to be set before inclusion.
  */
-$pageTitle = $pageTitle ?? 'Food Rescue | Serve. Rescue. Save.';
+$pageTitle = $pageTitle ?? 'Food Link | Serve. Link. Save.';
 $pageDesc = $pageDesc ?? 'A real-time surplus food donation & rescue platform connecting donors, NGOs, and volunteers.';
 ?>
 <!DOCTYPE html>
@@ -35,12 +35,59 @@ $pageDesc = $pageDesc ?? 'A real-time surplus food donation & rescue platform co
     <!-- App Styles -->
     <link rel="stylesheet" href="/assets/css/index.css">
 
-    <!-- Prevent "Confirm Form Resubmission" on reloads -->
+    <!-- Global Scroll Reveal -->
     <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const reveals = document.querySelectorAll('.reveal');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        // Counters within revealed sections
+                        const counters = entry.target.querySelectorAll('.count-up');
+                        counters.forEach(c => {
+                            if (!c.getAttribute('data-started')) {
+                                startCountInside(c);
+                            }
+                        });
+
+                        // Progress bars within revealed sections
+                        const bars = entry.target.querySelectorAll('.count-bar');
+                        bars.forEach(b => {
+                            if (!b.style.width || b.style.width === '0%') {
+                                b.style.transition = 'width 1.5s cubic-bezier(0.1, 0, 0.1, 1)';
+                                b.style.width = b.getAttribute('data-width');
+                            }
+                        });
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            function startCountInside(counter) {
+                counter.setAttribute('data-started', 'true');
+                const target = +counter.getAttribute('data-target');
+                let count = 0;
+                const updateCount = () => {
+                    const increment = target / 40;
+                    if (count < target) {
+                        count += increment;
+                        counter.innerText = Math.ceil(count).toLocaleString();
+                        requestAnimationFrame(updateCount);
+                    } else {
+                        counter.innerText = target.toLocaleString();
+                    }
+                };
+                updateCount();
+            }
+
+            reveals.forEach(r => observer.observe(r));
+        });
+
         if (window.history.replaceState) {
             window.history.replaceState(null, null, window.location.href);
         }
     </script>
+
 </head>
 
 <body>

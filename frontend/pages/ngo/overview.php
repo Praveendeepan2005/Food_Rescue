@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../includes/api_call.php';
 
 $userId = $sessionUser['user_id'];
 $activePage = 'overview';
-$pageTitle = 'NGO Dashboard | Food Rescue';
+$pageTitle = 'NGO Dashboard | Food Link';
 
 $data = apiCall("/ngo/get_ngo_dashboard.php?ngo_id={$userId}", [], 'GET');
 $stats = $data['data']['stats'] ?? [];
@@ -32,7 +32,7 @@ include __DIR__ . '/../../includes/header.php';
         </div>
 
         <!-- Stats Cards -->
-        <div class="stats-grid">
+        <div class="stats-grid reveal">
             <div class="stat-card">
                 <span class="label">Available Donations</span>
                 <span class="value" style="color:#f59e0b;">
@@ -65,7 +65,7 @@ include __DIR__ . '/../../includes/header.php';
         </div>
 
         <!-- Dashboard Charts/Stats -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px;">
+        <div class="reveal reveal-delay-1" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px;">
             <div class="glass-card">
                 <h3 style="font-size:1rem;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
                     <i class="fa-solid fa-chart-line" style="color:#2E7D32;"></i> Weekly Activity

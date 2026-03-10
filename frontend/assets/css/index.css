@@ -1474,3 +1474,99 @@ tbody tr:hover {
     transform: translateY(-6px);
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.06), 0 5px 15px rgba(0, 0, 0, 0.04);
 }
+
+/* --- Professional Animation Suite --- */
+
+/* Scroll Reveal Base */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Floating Animation for Hero Images/Icons */
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-15px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.animate-float {
+    animation: float 6.1s ease-in-out infinite;
+}
+
+/* Pulse Glow for Impact Elements */
+@keyframes pulse-glow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 15px rgba(46, 125, 50, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(46, 125, 50, 0);
+    }
+}
+
+.pulse-primary {
+    animation: pulse-glow 2s infinite;
+}
+
+/* Progress Dash Animation (SVG) */
+@keyframes dash {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Hover Scale Transition */
+.hover-scale {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+/* Staggered Reveal via JS Logic */
+.reveal-delay-1 {
+    transition-delay: 0.1s;
+}
+
+.reveal-delay-2 {
+    transition-delay: 0.2s;
+}
+
+.reveal-delay-3 {
+    transition-delay: 0.3s;
+}
+
+.reveal-delay-4 {
+    transition-delay: 0.4s;
+}
+
+/* Interactive Cursor / Hover States */
+.card-hover {
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.card-hover:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary);
+}

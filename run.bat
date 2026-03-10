@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableDelayedExpansion
-title Food Rescue - Unified Launcher
+title Food Link - Unified Launcher
 color 0A
 
 :: ============================================================
-::   FOOD RESCUE - UNIFIED APPLICATION LAUNCHER
+::   FOOD LINK - UNIFIED APPLICATION LAUNCHER
 ::   Controls: Oracle DB + Apache + Automatic Workspace Sync
 :: ============================================================
 
@@ -21,7 +21,7 @@ set "WORKSPACE=%~dp0backend"
 cls
 echo.
 echo  ============================================================
-echo   ^>^>  FOOD RESCUE  ^<^<   Unified Management System
+echo   ^>^>  FOOD LINK  ^<^<   Unified Management System
 echo  ============================================================
 echo.
 
@@ -95,7 +95,7 @@ echo.
 :: ─────────────────────────────────────────────────────────────
 echo  [5/6] Launching Unified Server...
 set "PATH=%ORACLE_BIN%;%PATH%"
-start /b "Food Rescue API Server" "%APACHE_BIN%" -f "%APACHE_CONF%"
+start /b "Food Link API Server" "%APACHE_BIN%" -f "%APACHE_CONF%"
 timeout /t 2 /nobreak >nul
 echo        Server running on port %APACHE_PORT%.
 echo.

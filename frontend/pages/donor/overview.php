@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../includes/api_call.php';
 
 $userId = $sessionUser['user_id'];
 $activePage = 'overview';
-$pageTitle = 'Dashboard | Food Rescue';
+$pageTitle = 'Dashboard | Food Link';
 
 // Fetch data from backend
 $data = apiCall("/donor/get_donor_dashboard.php?donor_id={$userId}", [], 'GET');
@@ -39,7 +39,7 @@ include __DIR__ . '/../../includes/header.php';
         </div>
 
         <!-- Impact Section -->
-        <div
+        <div class="reveal"
             style="background:#DCFCE7;border:1px solid #4CAF50;color:#1B5E20;padding:16px 20px;border-radius:6px;margin:24px 0;">
             <i class="fa-solid fa-hand-holding-heart" style="margin-right:8px;"></i> You have helped provide <strong
                 style="font-size:1.1rem;"><span class="count-up" data-target="<?= $stats['meals_donated'] ?>">0</span>
@@ -48,7 +48,7 @@ include __DIR__ . '/../../includes/header.php';
         </div>
 
         <!-- Stats Cards -->
-        <div class="stats-grid">
+        <div class="stats-grid reveal reveal-delay-1">
             <div class="stat-card">
                 <span class="label">Total Donations Made</span>
                 <span class="value">
@@ -80,7 +80,8 @@ include __DIR__ . '/../../includes/header.php';
         </div>
 
         <!-- Line Graph Analytics -->
-        <div style="background:#fff; border:1px solid #E5E7EB; border-radius:8px; padding:24px; margin-top:24px;">
+        <div class="reveal reveal-delay-2"
+            style="background:#fff; border:1px solid #E5E7EB; border-radius:8px; padding:24px; margin-top:24px;">
             <h3 style="font-size:1.15rem;font-weight:700;color:#111827;margin-bottom:16px;">Donation Activity (Year to
                 Date)</h3>
             <div style="position: relative; height: 250px; width: 100%;">
@@ -89,7 +90,7 @@ include __DIR__ . '/../../includes/header.php';
         </div>
 
         <!-- Recent Donations Table -->
-        <div class="table-card" style="margin-top:8px;">
+        <div class="table-card reveal reveal-delay-3" style="margin-top:8px;">
             <div class="table-header">
                 <div>
                     <h3>Recent Donations</h3>

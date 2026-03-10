@@ -185,7 +185,7 @@
 <footer class="main-footer">
     <div class="footer-grid">
         <div class="footer-brand">
-            <h2><i class="fa-solid fa-leaf" style="color:#4ADE80;"></i> FOOD RESCUE</h2>
+            <h2><i class="fa-solid fa-leaf" style="color:#4ADE80;"></i> FOOD LINK</h2>
             <p>Smart technology connecting surplus food to those in need, reducing waste across the nation.</p>
             <div class="social-links">
                 <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
@@ -220,7 +220,7 @@
             <div class="footer-links">
                 <div class="contact-item">
                     <i class="fa-solid fa-envelope"></i>
-                    <span>support@foodrescue.org</span>
+                    <span>support@foodlink.org</span>
                 </div>
                 <div class="contact-item">
                     <i class="fa-solid fa-phone"></i>
@@ -231,7 +231,7 @@
     </div>
 
     <div class="footer-bottom">
-        <div>&copy; <?= date('Y') ?> Food Rescue Platform. Connecting surplus to soul.</div>
+        <div>&copy; <?= date('Y') ?> Food Link Platform. Connecting surplus to soul.</div>
         <div class="footer-badges">
             <span><i class="fa-solid fa-shield-check" style="color:#4ADE80;"></i> SSL Secured</span>
             <span><i class="fa-solid fa-leaf" style="color:#4ADE80;"></i> Zero Waste</span>

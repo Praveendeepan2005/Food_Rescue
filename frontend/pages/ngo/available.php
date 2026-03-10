@@ -52,10 +52,12 @@ include __DIR__ . '/../../includes/header.php';
             </div>
         <?php else: ?>
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;">
-                <?php foreach ($donations as $d):
+                <?php foreach ($donations as $idx => $d):
                     $urgentBg = strtoupper($d['PRIORITY'] ?? '') === 'HIGH' ? '#FEF2F2' : '#fff';
+                    $delay = ($idx % 4) + 1; // Stagger first 4 items
                     ?>
-                    <div class="glass-card" style="background:<?= $urgentBg ?>;position:relative;">
+                    <div class="glass-card reveal reveal-delay-<?= $delay ?>"
+                        style="background:<?= $urgentBg ?>;position:relative;">
                         <?php if (strtoupper($d['PRIORITY'] ?? '') === 'HIGH'): ?>
                             <span
                                 style="position:absolute;top:16px;right:16px;background:#D32F2F;color:#fff;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:20px;">URGENT</span>
@@ -68,7 +70,7 @@ include __DIR__ . '/../../includes/header.php';
                         </p>
                         <div style="display:flex;gap:16px;font-size:0.8rem;color:#6B7280;margin-bottom:16px;flex-wrap:wrap;">
                             <span><i class="fa-solid fa-bowl-food" style="color:#2E7D32;"></i>
-                                <?= htmlspecialchars($d['QUANTITY']) ?> servings
+                                <?= htmlspecialchars($d['QUANTITY']) ?>
                             </span>
                             <span><i class="fa-solid fa-location-dot" style="color:#2E7D32;"></i>
                                 <?= htmlspecialchars($d['CITY'] ?? '—') ?>

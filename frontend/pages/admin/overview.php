@@ -5,7 +5,7 @@
 require_once __DIR__ . '/../../includes/api_call.php';
 
 $activePage = 'overview';
-$pageTitle = 'Admin Dashboard | Food Rescue';
+$pageTitle = 'Admin Dashboard | Food Link';
 
 $data = apiCall('/admin/get_stats.php', [], 'GET');
 $cards = $data['data']['top_cards'] ?? [];
@@ -25,7 +25,7 @@ include __DIR__ . '/../../includes/header.php';
         </div>
 
         <!-- Top Cards -->
-        <div class="stats-grid">
+        <div class="stats-grid reveal">
             <div class="stat-card">
                 <span class="label">Total Users</span>
                 <span class="value">
@@ -53,7 +53,8 @@ include __DIR__ . '/../../includes/header.php';
         </div>
 
         <!-- Sub-cards: Donors / NGOs / Volunteers -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
+        <div class="reveal reveal-delay-1"
+            style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
             <div class="glass-card" style="text-align:center;padding:16px;">
                 <i class="fa-solid fa-hand-holding-heart"
                     style="font-size:1.5rem;color:#f59e0b;margin-bottom:8px;display:block;"></i>
@@ -81,7 +82,7 @@ include __DIR__ . '/../../includes/header.php';
         </div>
 
         <!-- Recent Users & Recent Alerts -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        <div class="reveal reveal-delay-2" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
             <!-- Recent Users -->
             <div class="table-card">
                 <div class="table-header">

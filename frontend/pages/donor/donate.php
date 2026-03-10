@@ -11,7 +11,7 @@ if ($sessionUser['role'] !== 'DONOR') {
 }
 
 $activePage = 'donate';
-$pageTitle = 'Donate Food | Food Rescue';
+$pageTitle = 'Donate Food | Food Link';
 $error = $success = '';
 
 // City List - Hardcoded Fallback for Tamil Nadu (ensures page never breaks)
@@ -31,11 +31,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $expLocal = trim($_POST['expiry_time'] ?? '');
     $expFormatted = $expLocal ? str_replace('T', ' ', $expLocal) . ':00' : '';
 
+    $quantityNum = (int) ($_POST['quantity'] ?? 0);
+    $quantityUnit = trim($_POST['quantity_unit'] ?? 'Packets');
+    $quantityCombined = $quantityNum . ' ' . $quantityUnit;
+
     $payload = [
         'donor_id' => $sessionUser['user_id'],
         'food_name' => trim($_POST['food_name'] ?? ''),
         'category' => trim($_POST['category'] ?? 'VEG'),
-        'quantity' => (int) ($_POST['quantity'] ?? 0),
+        'quantity' => $quantityCombined,
         'preparation_time' => $prepFormatted,
         'expiry_time' => $expFormatted,
         'pickup_address' => trim($_POST['pickup_address'] ?? ''),
@@ -348,7 +352,7 @@ include __DIR__ . '/../../includes/header.php';
         <?php endif; ?>
 
         <div class="donate-layout">
-            <form id="donationForm" method="POST" class="glass-card" style="padding:32px;">
+            <form id="donationForm" method="POST" class="glass-card reveal" style="padding:32px;">
                 <input type="hidden" name="selection_mode" id="selectionMode" value="AUTO">
                 <input type="hidden" name="target_ngo_id" id="targetNgoId" value="">
 
@@ -361,6 +365,8 @@ include __DIR__ . '/../../includes/header.php';
                     <div class="form-group">
                         <label>Food Category <span style="color:#D32F2F">*</span></label>
                         <select name="category" required>
+                            <option value="" disabled <?= empty($_POST['category']) ? 'selected' : '' ?>>Select Food
+                                Category</option>
                             <option value="VEG" <?= (($_POST['category'] ?? '') === 'VEG') ? 'selected' : '' ?>>Vegetarian
                             </option>
                             <option value="NON_VEG" <?= (($_POST['category'] ?? '') === 'NON_VEG') ? 'selected' : '' ?>>
@@ -374,13 +380,21 @@ include __DIR__ . '/../../includes/header.php';
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
                     <div class="form-group">
                         <label>Quantity <span style="color:#D32F2F">*</span></label>
-                        <input type="number" name="quantity" required min="1"
-                            value="<?= htmlspecialchars($_POST['quantity'] ?? '') ?>">
+                        <div style="display:flex;gap:8px;">
+                            <input type="number" name="quantity" required min="1" style="flex:2;" placeholder="Amount"
+                                value="<?= htmlspecialchars($_POST['quantity'] ?? '') ?>">
+                            <select name="quantity_unit" style="flex:1;">
+                                <option value="Packets" <?= ($_POST['quantity_unit'] ?? '') === 'Packets' ? 'selected' : '' ?>>Packets</option>
+                                <option value="KG" <?= ($_POST['quantity_unit'] ?? '') === 'KG' ? 'selected' : '' ?>>
+                                    Kilograms (KG)</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Contact Number <span style="color:#D32F2F">*</span></label>
-                        <input type="text" name="contact_number" required
-                            value="<?= htmlspecialchars($_POST['contact_number'] ?? $sessionUser['phone'] ?? '') ?>">
+                        <input type="tel" name="contact_number" required placeholder="Enter 10-digit number"
+                            pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number"
+                            value="<?= htmlspecialchars($_POST['contact_number'] ?? '') ?>">
                     </div>
                 </div>
 
@@ -429,7 +443,7 @@ include __DIR__ . '/../../includes/header.php';
                 </div>
             </form>
 
-            <div class="flow-card">
+            <div class="flow-card reveal reveal-delay-2">
                 <div class="flow-title">The Rescue Journey</div>
                 <div class="flow-steps">
                     <div class="pulse-line"></div>
@@ -507,7 +521,9 @@ include __DIR__ . '/../../includes/header.php';
     let currentMode = 'ANY';
 
     document.getElementById('submitBtn').addEventListener('click', () => {
-        if (!form.checkValidity()) { alert('Please fill all required fields.'); return; }
+        if (!form.reportValidity()) {
+            return;
+        }
         modal.classList.add('active');
     });
 

@@ -11,7 +11,7 @@ if ($sessionUser['role'] !== 'DONOR') {
 }
 
 $activePage = 'my_donations';
-$pageTitle = 'My Donations | Food Rescue';
+$pageTitle = 'My Donations | Food Link';
 $userId = $sessionUser['user_id'];
 
 $data = apiCall("/donor/get_my_donations.php?donor_id={$userId}", [], 'GET');

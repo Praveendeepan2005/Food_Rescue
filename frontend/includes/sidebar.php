@@ -30,6 +30,7 @@ if ($role === 'DONOR') {
 } elseif ($role === 'VOLUNTEER') {
     $navItems = [
         ['icon' => 'fa-gauge', 'label' => 'Dashboard', 'href' => '/dashboard.php', 'page' => 'overview'],
+        ['icon' => 'fa-route', 'label' => 'Live Tracking', 'href' => '/pages/volunteer/delivery-map.php', 'page' => 'delivery-map'],
         ['icon' => 'fa-truck', 'label' => 'Assigned Pickups', 'href' => '/pages/volunteer/assignments.php', 'page' => 'assignments'],
         ['icon' => 'fa-clock-rotate-left', 'label' => 'Pickup History', 'href' => '/pages/volunteer/history.php', 'page' => 'history'],
         ['icon' => 'fa-user', 'label' => 'Profile', 'href' => '/pages/volunteer/profile.php', 'page' => 'profile'],
@@ -56,7 +57,7 @@ $rc = $roleColors[$role] ?? ['badge' => '#6B7280', 'bg' => 'rgba(107,114,128,0.1
     <a href="/index.php" class="logo"
         style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px; margin-bottom: 40px; padding: 0 12px; font-weight: 800; font-size: 1.40rem;">
         <i class="fa-solid fa-leaf" style="color: #4ADE80;"></i>
-        FOODRESCUE
+        FOODLINK
     </a>
 
     <!-- User Profile Chip -->

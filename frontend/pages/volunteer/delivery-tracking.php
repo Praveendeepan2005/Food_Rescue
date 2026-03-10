@@ -239,7 +239,7 @@ if ($status === 'ACTIVE' || $status === 'ASSIGNED') {
         const status = <?= json_encode($status) ?>;
 
         // Fallback to prevent gray rendering at Null Island [0,0]
-        if (dLat === 0) { dLat = 12.9716; dLng = 77.5946; }
+        if (dLat === 0) { dLat = 11.0168; dLng = 76.9558; }
         if (nLat === 0) { nLat = dLat - 0.02; nLng = dLng + 0.02; }
 
         // Leaflet setup
@@ -253,64 +253,75 @@ if ($status === 'ACTIVE' || $status === 'ASSIGNED') {
         const donorIcon = L.icon({
             iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png',
             shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
         });
         const ngoIcon = L.icon({
             iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
             shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
         });
         const volIcon = L.icon({
             iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
             shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
         });
 
-        const donorMarker = L.marker([dLat, dLng], { icon: donorIcon }).addTo(map).bindPopup("<b>Donor Location</b><br>Pickup Point");
-        const ngoMarker = L.marker([nLat, nLng], { icon: ngoIcon }).addTo(map).bindPopup("<b>NGO Location</b><br>Drop-off Point");
+        const donorMarker = L.marker([dLat, dLng], { icon: donorIcon }).addTo(map).bindPopup("<b>Pickup Point</b>");
+        const ngoMarker = L.marker([nLat, nLng], { icon: ngoIcon }).addTo(map).bindPopup("<b>NGO Drop-off Point</b>");
 
-        const bounds = L.latLngBounds([[dLat, dLng], [nLat, nLng]]);
-        const routeLine = L.polyline([[dLat, dLng], [nLat, nLng]], { color: '#2E7D32', weight: 4, dashArray: '5, 10' }).addTo(map);
-        map.fitBounds(bounds, { padding: [50, 50] });
+        // Full route line (static background)
+        L.polyline([[dLat, dLng], [nLat, nLng]], { color: '#E5E7EB', weight: 4, dashArray: '5, 10' }).addTo(map);
 
-        // Vehicle placement & Animation logic
-        let volMarker;
-        if (status === 'DELIVERED' || status === 'COMPLETED') {
-            volMarker = L.marker([nLat, nLng], { icon: volIcon }).addTo(map).bindPopup("<b>Vehicle Arrived</b><br>Mission accomplished!");
-        } else if (status === 'PENDING' || status === 'ASSIGNED' || status === 'ACCEPTED' || status === 'ACTIVE') {
-            volMarker = L.marker([dLat, dLng], { icon: volIcon }).addTo(map).bindPopup("<b>Pickup Location</b><br>Wait here for pickup");
+        let volMarker = L.marker([dLat, dLng], { icon: volIcon }).addTo(map).bindPopup("<b>Connecting GPS...</b>");
+        let activeRoute;
+
+        function updateRoute(userLat, userLng) {
+            if (activeRoute) map.removeLayer(activeRoute);
+
+            const isPickedUp = ['FOOD_PICKED', 'PICKED_UP', 'DELIVERING', 'ON_DELIVERY', 'COMPLETED', 'DELIVERED'].includes(status);
+            const targetLat = isPickedUp ? nLat : dLat;
+            const targetLng = isPickedUp ? nLng : dLng;
+            const routeColor = isPickedUp ? '#2E7D32' : '#8b5cf6';
+
+            activeRoute = L.polyline([[userLat, userLng], [targetLat, targetLng]], {
+                color: routeColor,
+                weight: 5,
+                opacity: 0.8,
+                dashArray: isPickedUp ? '1, 10' : '2, 5'
+            }).addTo(map);
+
+            volMarker.setLatLng([userLat, userLng]);
+            volMarker.setPopupContent(isPickedUp ? "<b>Heading to NGO</b>" : "<b>Heading to Pickup</b>");
+
+            const bounds = L.latLngBounds([[userLat, userLng], [dLat, dLng], [nLat, nLng]]);
+            map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
+
+            // Update Distance display
+            const dist = calcDistance(userLat, userLng, targetLat, targetLng);
+            const mins = Math.round((dist / 30) * 60) + 2;
+            document.getElementById('distDisplay').innerText = dist.toFixed(1) + ' km to Target (~' + mins + ' mins)';
+        }
+
+        // Live Geolocation
+        if ("geolocation" in navigator) {
+            navigator.geolocation.watchPosition((pos) => {
+                updateRoute(pos.coords.latitude, pos.coords.longitude);
+            }, (err) => {
+                console.warn("GPS Access Denied, using simulation");
+                updateRoute(dLat - 0.005, dLng - 0.005); // Simulated start
+            }, { enableHighAccuracy: true });
         } else {
-            // Animating delivery progression
-            volMarker = L.marker([dLat, dLng], { icon: volIcon }).addTo(map).bindPopup("<b>You are tracing the route</b>");
-            let progress = 0;
-            const totalFrames = 300;
-
-            function animateVehicle() {
-                progress += 1;
-                if (progress <= totalFrames) {
-                    const ratio = progress / totalFrames;
-                    const cLat = dLat + (nLat - dLat) * ratio;
-                    const cLng = dLng + (nLng - dLng) * ratio;
-                    volMarker.setLatLng([cLat, cLng]);
-                    requestAnimationFrame(animateVehicle);
-                }
-            }
-            setTimeout(animateVehicle, 800);
+            updateRoute(dLat - 0.005, dLng - 0.005);
         }
 
-        // Haversine Distance Calculation (approximate)
+        // Haversine Distance Calculation
         function calcDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // km
-            const pLat = (lat2 - lat1) * Math.PI / 180;
-            const pLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(pLat / 2) * Math.sin(pLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(pLon / 2) * Math.sin(pLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c;
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         }
-
-        const distance = calcDistance(dLat, dLng, nLat, nLng);
-        const estMins = Math.round((distance / 30) * 60) + 5;
-        document.getElementById('distDisplay').innerText = distance.toFixed(1) + ' km (~' + estMins + ' mins)';
     });
 </script>
 

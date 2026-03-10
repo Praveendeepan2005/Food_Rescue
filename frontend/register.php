@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Register | Food Rescue';
+$pageTitle = 'Register | Food Link';
 include __DIR__ . '/includes/header.php';
 ?>
 <style>
@@ -389,7 +389,7 @@ include __DIR__ . '/includes/header.php';
         <a href="/index.php" class="auth-brand" style="text-decoration: none;">
             <div class="auth-brand-icon"><i class="fa-solid fa-leaf" style="color:#4ADE80;"></i></div>
             <div class="auth-brand-text">
-                <span class="name">Food Rescue</span>
+                <span class="name">Food Link</span>
                 <span class="sub">Platform</span>
             </div>
         </a>
@@ -408,7 +408,7 @@ include __DIR__ . '/includes/header.php';
             <div class="auth-feat-pill"><i class="fa-solid fa-map-location-dot"
                     style="color:rgba(255,255,255,0.8);"></i> Hyper-local</div>
         </div>
-        <div class="auth-left-footer">© 2025 Food Rescue Platform. All rights reserved.</div>
+        <div class="auth-left-footer">© 2025 Food Link Platform. All rights reserved.</div>
     </div>
 
     <div class="auth-right">
@@ -427,7 +427,7 @@ include __DIR__ . '/includes/header.php';
 
                 <div class="auth-form-header">
                     <h1>Create Account</h1>
-                    <p>Join the Food Rescue network today</p>
+                    <p>Join the Food Link network today</p>
                 </div>
 
                 <?php if ($error): ?>

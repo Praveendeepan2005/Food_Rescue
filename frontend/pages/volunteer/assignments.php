@@ -278,8 +278,7 @@ $statusBadgeColors = [
                         <!-- Meta row -->
                         <div class="ac-meta">
                             <div class="ac-meta-item"><i
-                                    class="fa-solid fa-scale-balanced"></i><?= htmlspecialchars($a['QUANTITY'] ?? '—') ?>
-                                servings</div>
+                                    class="fa-solid fa-scale-balanced"></i><?= htmlspecialchars($a['QUANTITY'] ?? '—') ?></div>
                             <div class="ac-meta-item"><i
                                     class="fa-solid fa-user"></i><?= htmlspecialchars($a['DONOR_NAME'] ?? '—') ?></div>
                             <div class="ac-meta-item"><i

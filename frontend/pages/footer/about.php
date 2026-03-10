@@ -4,14 +4,14 @@
  */
 if (session_status() === PHP_SESSION_NONE)
     session_start();
-$pageTitle = 'About Us | Food Rescue';
+$pageTitle = 'About Us | Food Link';
 include __DIR__ . '/../../includes/header.php';
 ?>
 <div class="container" style="padding: 80px 20px; max-width: 800px; margin: 0 auto;">
     <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 24px; color: #111827;">Ending Hunger, One Rescue at a
         Time</h1>
     <p style="font-size: 1.125rem; line-height: 1.8; color: #4B5563; margin-bottom: 32px;">
-        Food Rescue is a technology-driven platform designed to tackle the global crisis of food waste. We bridge the
+        Food Link is a technology-driven platform designed to tackle the global crisis of food waste. We bridge the
         gap between surplus food from restaurants, events, and households and the NGOs that serve those in need.
     </p>
 

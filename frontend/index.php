@@ -8,7 +8,7 @@ if (session_status() === PHP_SESSION_NONE)
 // Optional: Define if user is logged in
 $isLoggedIn = isset($_SESSION['fr_user']);
 
-$pageTitle = 'Food Rescue | Serve. Rescue. Save.';
+$pageTitle = 'Food Link | Serve. Link. Save.';
 $pageDesc = 'A real-time surplus food donation & rescue platform connecting donors, NGOs, and volunteers.';
 include __DIR__ . '/includes/header.php';
 ?>
@@ -64,11 +64,28 @@ include __DIR__ . '/includes/header.php';
     }
 
     .hero-visual {
-        background: linear-gradient(135deg, #E8F5E9 0%, #F0FDF4 100%);
+        background: url('food_rescue_hero_bg_1773131764771.png') center/cover no-repeat;
         border-radius: 24px;
-        padding: 60px 40px;
-        text-align: center;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
         animation: floating 6s ease-in-out infinite;
+        position: relative;
+    }
+
+    .hero-visual::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(2px);
+        border-radius: 24px;
+        z-index: 0;
     }
 
     @keyframes floating {
@@ -88,27 +105,113 @@ include __DIR__ . '/includes/header.php';
     .hero-visual .icon-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-        max-width: 300px;
+        gap: 32px;
+        width: 100%;
+        max-width: 460px;
         margin: 0 auto;
+        padding: 40px;
+        position: relative;
+    }
+
+    .hero-visual .icon-grid::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, rgba(46, 125, 50, 0.05) 0%, transparent 70%);
+        z-index: -1;
+    }
+
+    /* Connection Lines SVG */
+    .grid-connections {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .grid-connections path {
+        stroke: #2E7D32;
+        stroke-width: 1.5;
+        fill: none;
+        stroke-dasharray: 8 8;
+        opacity: 0.15;
+        animation: dashFlow 20s linear infinite;
+    }
+
+    .grid-connections path.glow-path {
+        stroke: #4ADE80;
+        stroke-width: 2.5;
+        stroke-dasharray: 40 260;
+        opacity: 0.6;
+        filter: blur(1.5px);
+        animation: glowFlow 4s linear infinite;
+    }
+
+    @keyframes dashFlow {
+        to {
+            stroke-dashoffset: -200;
+        }
+    }
+
+    @keyframes glowFlow {
+        to {
+            stroke-dashoffset: -300;
+        }
     }
 
     .hero-icon-card {
         background: #fff;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        background: color-mix(in srgb, var(--card-color) 4%, white);
+        border-radius: 20px;
+        padding: 28px 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 8px;
-        font-size: 0.75rem;
-        font-weight: 500;
-        color: #6B7280;
+        gap: 14px;
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: #1f2937;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        z-index: 2;
+        border: 1px solid color-mix(in srgb, var(--card-color) 12%, transparent);
+        cursor: pointer;
+    }
+
+    .hero-icon-card:hover {
+        transform: translateY(-12px) scale(1.05);
+        background: color-mix(in srgb, var(--card-color) 10%, white);
+        box-shadow: 0 25px 50px -12px color-mix(in srgb, var(--card-color) 25%, transparent);
+        z-index: 10;
+        border-color: var(--card-color);
     }
 
     .hero-icon-card i {
-        font-size: 1.5rem;
+        font-size: 2.2rem;
+        filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--card-color) 30%, transparent));
+        transition: transform 0.4s;
+    }
+
+    .hero-icon-card:hover i {
+        transform: scale(1.15) rotate(8deg);
+    }
+
+    .hero-icon-card::after {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        border-radius: 21px;
+        background: linear-gradient(135deg, transparent, var(--card-color), transparent);
+        opacity: 0;
+        transition: opacity 0.4s;
+        z-index: -1;
+    }
+
+    .hero-icon-card:hover::after {
+        opacity: 0.15;
     }
 
     section.features {
@@ -305,7 +408,7 @@ include __DIR__ . '/includes/header.php';
 <!-- Nav -->
 <nav class="top-nav">
     <a href="/index.php" class="logo"><i class="fa-solid fa-leaf"
-            style="color:#4ADE80;margin-right:8px;"></i>FOODRESCUE</a>
+            style="color:#4ADE80;margin-right:8px;"></i>FOODLINK</a>
     <div class="nav-links">
         <?php if ($isLoggedIn): ?>
             <a href="/dashboard.php" class="btn btn-primary" style="background:#fff;color:#2E7D32;">
@@ -333,12 +436,14 @@ include __DIR__ . '/includes/header.php';
 <section style="max-width:1280px;margin:0 auto;">
     <div class="hero-section">
         <div>
-            <div
+            <div class="reveal reveal-delay-1"
                 style="display:inline-flex;align-items:center;gap:8px;background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;padding:6px 14px;border-radius:20px;font-size:0.8rem;font-weight:600;margin-bottom:24px;">
                 <i class="fa-solid fa-circle-check"></i> Making Food Rescue Smarter
             </div>
-            <h1>Eliminate <span style="color:#2E7D32;">Food Waste.</span><br>Feed Communities.</h1>
-            <p>A real-time logistics ecosystem connecting surplus food resources to those who need them most. We bridge
+            <h1 class="reveal reveal-delay-2">Eliminate <span style="color:#2E7D32;">Food Waste.</span><br>Feed
+                Communities.</h1>
+            <p class="reveal reveal-delay-3">A real-time logistics ecosystem connecting surplus food resources to those
+                who need them most. We bridge
                 the gap between abundance and scarcity with precision.</p>
             <div style="display:flex;gap:16px;flex-wrap:wrap;">
                 <a href="/register.php" class="btn btn-primary" style="padding:14px 28px;font-size:1rem;">
@@ -349,9 +454,24 @@ include __DIR__ . '/includes/header.php';
                 </a>
             </div>
         </div>
-        <div class="hero-visual">
-            <i class="fa-solid fa-leaf" style="font-size:4rem;color:#2E7D32;margin-bottom:24px;display:block;"></i>
+        <div class="hero-visual reveal animate-float">
             <div class="icon-grid">
+                <svg class="grid-connections" viewBox="0 0 300 200" preserveAspectRatio="none">
+                    <!-- Base Dash Lines -->
+                    <path d="M50,50 L250,50" />
+                    <path d="M50,150 L250,150" />
+                    <path d="M50,50 L50,150" />
+                    <path d="M150,50 L150,150" />
+                    <path d="M250,50 L250,150" />
+
+                    <!-- Flowing Glow Paths -->
+                    <path class="glow-path" d="M50,50 L250,50" />
+                    <path class="glow-path" d="M50,150 L250,150" />
+                    <path class="glow-path" d="M50,50 L50,150" />
+                    <path class="glow-path" d="M150,50 L150,150" />
+                    <path class="glow-path" d="M250,50 L250,150" />
+                </svg>
+
                 <?php
                 $icons = [
                     ['fa-hand-holding-heart', '#f59e0b', 'Donor'],
@@ -363,9 +483,9 @@ include __DIR__ . '/includes/header.php';
                 ];
                 foreach ($icons as [$icon, $color, $label]):
                     ?>
-                    <div class="hero-icon-card">
+                    <div class="hero-icon-card" style="--card-color: <?= $color ?>;">
                         <i class="fa-solid <?= $icon ?>" style="color:<?= $color ?>;"></i>
-                        <?= $label ?>
+                        <span><?= $label ?></span>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -374,7 +494,7 @@ include __DIR__ . '/includes/header.php';
 </section>
 
 <!-- Stats -->
-<div class="stats-row">
+<div class="stats-row reveal">
     <div class="stat-tile">
         <h2><span class="count-up" data-target="15000">0</span>+</h2>
         <p>Meals Delivered</p>
@@ -394,7 +514,7 @@ include __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Features -->
-<section class="features">
+<section class="features reveal">
     <div style="text-align:center;">
         <h2 style="font-size:2.5rem;font-weight:800;color:#111827;">The Zero-Waste Infrastructure</h2>
         <p style="color:#6B7280;margin-top:12px;font-size:1rem;">Empowering communities with professional tools for food
@@ -476,34 +596,39 @@ include __DIR__ . '/includes/header.php';
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const counters = document.querySelectorAll('.count-up');
+        const reveals = document.querySelectorAll('.reveal');
 
-        const observer = new IntersectionObserver((entries, obs) => {
+        const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    const counter = entry.target;
-                    const target = +counter.getAttribute('data-target');
-                    const duration = 2000; // Total animation time
-
-                    let count = 0;
-                    const updateCount = () => {
-                        // easing-like increment
-                        const increment = target / 30; // 30 frames
-                        if (count < target) {
-                            count += increment;
-                            if (count > target) count = target;
-                            counter.innerText = Math.ceil(count).toLocaleString();
-                            requestAnimationFrame(updateCount);
-                        } else {
-                            counter.innerText = target.toLocaleString();
-                        }
-                    };
-                    updateCount();
-                    obs.unobserve(counter);
+                    if (entry.target.classList.contains('count-up')) {
+                        startCount(entry.target);
+                    } else if (entry.target.classList.contains('reveal')) {
+                        entry.target.classList.add('active');
+                    }
                 }
             });
-        }, { threshold: 0.1 });
+        }, { threshold: 0.15 });
 
-        counters.forEach(counter => observer.observe(counter));
+        function startCount(counter) {
+            const target = +counter.getAttribute('data-target');
+            let count = 0;
+            const updateCount = () => {
+                const increment = target / 40;
+                if (count < target) {
+                    count += increment;
+                    counter.innerText = Math.ceil(count).toLocaleString();
+                    requestAnimationFrame(updateCount);
+                } else {
+                    counter.innerText = target.toLocaleString();
+                }
+            };
+            updateCount();
+            observer.unobserve(counter);
+        }
+
+        counters.forEach(c => observer.observe(c));
+        reveals.forEach(r => observer.observe(r));
     });
 </script>
 

@@ -392,7 +392,7 @@ $action = $statusFlow[$status] ?? null;
                         <div>
                             <div class="info-label">Quantity</div>
                             <div class="info-val">
-                                <?= htmlspecialchars($d['QUANTITY'] ?? '—') ?> servings
+                                <?= htmlspecialchars($d['QUANTITY'] ?? '—') ?>
                             </div>
                         </div>
                     </div>
@@ -551,8 +551,7 @@ $action = $statusFlow[$status] ?? null;
                             ?>
                             <form method="POST">
                                 <input type="hidden" name="action" value="<?= $aKey ?>">
-                                <button type="submit" <?= $isValid ? '' : 'disabled' ?>
-                                    style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:8px;font-size:.875rem;font-weight:700;cursor:
+                                <button type="submit" <?= $isValid ? '' : 'disabled' ?> style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:8px;font-size:.875rem;font-weight:700;cursor:
                             <?= $isValid ? 'pointer' : 'not-allowed' ?>;
                             background:
                             <?= $isValid ? $aColor : '#F3F4F6' ?>;color:
