@@ -81,6 +81,7 @@ include __DIR__ . '/../../includes/header.php';
                             <th>Donation ID</th>
                             <th>Donor Name</th>
                             <th>NGO Name</th>
+                            <th>Target Recipient</th>
                             <th>Volunteer</th>
                             <th>Status</th>
                         </tr>
@@ -90,8 +91,8 @@ include __DIR__ . '/../../includes/header.php';
                             $status = strtoupper($d['STATUS'] ?? $d['FA_STATUS'] ?? 'PENDING');
                             $dLat = (float) ($d['DONOR_LAT'] ?? 0);
                             $dLng = (float) ($d['DONOR_LNG'] ?? 0);
-                            $nLat = (float) ($d['NGO_LAT'] ?? 0);
-                            $nLng = (float) ($d['NGO_LNG'] ?? 0);
+                            $nLat = (float) ($d['ORPHANAGE_LAT'] ?? $d['NGO_LAT'] ?? 0);
+                            $nLng = (float) ($d['ORPHANAGE_LNG'] ?? $d['NGO_LNG'] ?? 0);
                             $vLat = (float) ($d['VOL_LAT'] ?? 0);
                             $vLng = (float) ($d['VOL_LNG'] ?? 0);
                             ?>
@@ -103,8 +104,13 @@ include __DIR__ . '/../../includes/header.php';
                                 <td>
                                     <?= htmlspecialchars($d['DONOR_NAME'] ?? '—') ?>
                                 </td>
-                                <td><i class="fa-solid fa-building-ngo" style="color:#2E7D32;margin-right:4px;"></i>
+                                <td>
                                     <?= htmlspecialchars($d['NGO_NAME'] ?? '—') ?>
+                                </td>
+                                <td>
+                                    <div style="font-size:0.85rem; color:#1d4ed8; font-weight:600;">
+                                        <i class="fa-solid fa-house-chimney-window"></i> <?= htmlspecialchars($d['ORPHANAGE_NAME'] ?? 'NGO Drop-off') ?>
+                                    </div>
                                 </td>
                                 <td>
                                     <?php if ($d['VOLUNTEER_NAME']): ?>
@@ -168,8 +174,8 @@ include __DIR__ . '/../../includes/header.php';
             $status = strtoupper($d['STATUS'] ?? $d['FA_STATUS'] ?? 'PENDING');
             $dLat = (float) $d['DONOR_LAT'];
             $dLng = (float) $d['DONOR_LNG'];
-            $nLat = (float) $d['NGO_LAT'];
-            $nLng = (float) $d['NGO_LNG'];
+            $nLat = (float) ($d['ORPHANAGE_LAT'] ?? $d['NGO_LAT'] ?? 0);
+            $nLng = (float) ($d['ORPHANAGE_LNG'] ?? $d['NGO_LNG'] ?? 0);
             $vLat = (float) $d['VOL_LAT'];
             $vLng = (float) $d['VOL_LNG'];
 
@@ -192,24 +198,28 @@ include __DIR__ . '/../../includes/header.php';
                 trackingMarkers[aid] = [];
                 
                 var dM = L.marker([%f, %f], {icon: donorIcon}).bindPopup('<b>Donor</b> (Delivery #'+aid+')');
-                var nM = L.marker([%f, %f], {icon: ngoIcon}).bindPopup('<b>NGO</b> (Delivery #'+aid+')');
+                var nM = L.marker([%f, %f], {icon: ngoIcon}).bindPopup('<b>Recipient</b> (Delivery #'+aid+')');
                 
                 globalSet.addLayer(dM);
                 globalSet.addLayer(nM);
                 trackingMarkers[aid].push(dM, nM);
 
-                var route = L.polyline([[%f,%f], [%f,%f]], {color: '#9CA3AF', weight: 4, opacity: 0.5, dashArray: '5, 10'}).addTo(map);
-                trackingLines[aid] = route;
+                var routeGrp = L.layerGroup();
+                // If volunteer has a known active location, trace volunteer->donor->orphanage
+                if (Math.abs(%f - %f) > 0.0001 || Math.abs(%f - %f) > 0.0001) {
+                    L.polyline([[%f,%f], [%f,%f]], {color: '#8b5cf6', weight: 4, opacity: 0.5, dashArray: '5, 5'}).addTo(routeGrp);
+                }
+                L.polyline([[%f,%f], [%f,%f]], {color: '#9CA3AF', weight: 4, opacity: 0.5, dashArray: '5, 10'}).addTo(routeGrp);
+                
+                routeGrp.addTo(map);
+                trackingLines[aid] = routeGrp;
             ",
                 $alertId,
-                $dLat,
-                $dLng,
-                $nLat,
-                $nLng,
-                $dLat,
-                $dLng,
-                $nLat,
-                $nLng
+                $dLat, $dLng,
+                $nLat, $nLng,
+                $vLat, $dLat, $vLng, $dLng,
+                $vLat, $vLng, $dLat, $dLng,
+                $dLat, $dLng, $nLat, $nLng
             );
 
             if (!empty($d['VOLUNTEER_NAME'])):
@@ -246,18 +256,34 @@ include __DIR__ . '/../../includes/header.php';
         }
     }
 
+    let currentAnimMarker = null;
+    let currentAnimFrame = null;
+
     function highlightRoute(alertId, dLat, dLng, nLat, nLng, vLat, vLng, row) {
         // Reset row highlights
         document.querySelectorAll('.tr-clickable').forEach(el => el.classList.remove('route-active'));
         row.classList.add('route-active');
 
         // Reset all line styles
-        Object.values(trackingLines).forEach(line => line.setStyle({ color: '#9CA3AF', weight: 3, opacity: 0.5, dashArray: '' }));
+        Object.values(trackingLines).forEach(item => {
+            if (item.setStyle) item.setStyle({ color: '#9CA3AF', weight: 4, opacity: 0.5, dashArray: '' });
+            else if (item.eachLayer) item.eachLayer(layer => {
+                if(layer.setStyle) layer.setStyle({ color: '#9CA3AF', weight: 4, opacity: 0.5, dashArray: '' });
+            });
+        });
 
         // Highlight selected route
         if (trackingLines[alertId]) {
-            trackingLines[alertId].setStyle({ color: '#2E7D32', weight: 5, opacity: 1, dashArray: '5, 10' });
-            trackingLines[alertId].bringToFront();
+            let selected = trackingLines[alertId];
+            if (selected.setStyle) {
+                selected.setStyle({ color: '#2E7D32', weight: 6, opacity: 1, dashArray: '5, 10' });
+                if (selected.bringToFront) selected.bringToFront();
+            } else if (selected.eachLayer) {
+                selected.eachLayer(layer => {
+                    if(layer.setStyle) layer.setStyle({ color: '#2E7D32', weight: 6, opacity: 1, dashArray: '5, 10' });
+                    if (layer.bringToFront) layer.bringToFront();
+                });
+            }
 
             let bounds = [];
             if (dLat != 0) bounds.push([dLat, dLng]);
@@ -266,6 +292,39 @@ include __DIR__ . '/../../includes/header.php';
 
             if (bounds.length > 0) {
                 map.flyToBounds(L.latLngBounds(bounds), { padding: [50, 50], maxZoom: 16 });
+            }
+            
+            // Animation effect from pickup to delivery
+            if (currentAnimMarker) { map.removeLayer(currentAnimMarker); currentAnimMarker = null; }
+            if (currentAnimFrame) { cancelAnimationFrame(currentAnimFrame); currentAnimFrame = null; }
+            
+            if (dLat !== 0 && nLat !== 0) {
+                const movingIcon = L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41], iconAnchor: [12, 41]
+                });
+                currentAnimMarker = L.marker([dLat, dLng], {icon: movingIcon, zIndexOffset: 1000}).addTo(map);
+                
+                let prog = 0;
+                function animatePoint() {
+                    prog += 1;
+                    if (prog <= 200) {
+                        // easing using sine
+                        let ease = Math.sin((prog / 200) * (Math.PI / 2));
+                        let cLat = dLat + (nLat - dLat) * ease;
+                        let cLng = dLng + (nLng - dLng) * ease;
+                        currentAnimMarker.setLatLng([cLat, cLng]);
+                        currentAnimFrame = requestAnimationFrame(animatePoint);
+                    } else {
+                        map.removeLayer(currentAnimMarker);
+                        currentAnimMarker = null;
+                    }
+                }
+                // start after map flyToBounds starts
+                setTimeout(() => {
+                    currentAnimFrame = requestAnimationFrame(animatePoint);
+                }, 500);
             }
         }
     }

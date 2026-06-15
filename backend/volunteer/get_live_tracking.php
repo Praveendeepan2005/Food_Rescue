@@ -20,7 +20,8 @@ $conn = getDBConnection();
 $sql = "
     SELECT fa.alert_id, fa.food_type, fa.quantity, c.status, fa.status as fa_status,
            d.name as donor_name, fa.latitude as donor_lat, fa.longitude as donor_lng, fa.pickup_address,
-           n.name as ngo_name, n.latitude as ngo_lat, n.longitude as ngo_lng,
+           n.name as ngo_name,
+           o.orphanage_name, o.latitude as orphanage_lat, o.longitude as orphanage_lng, o.address as delivery_address,
            v.name as volunteer_name, v.latitude as vol_lat, v.longitude as vol_lng,
            c.claim_id
     FROM claims c
@@ -28,6 +29,8 @@ $sql = "
     JOIN users d ON fa.donor_id = d.user_id
     LEFT JOIN users n ON fa.assigned_ngo_id = n.user_id
     LEFT JOIN users v ON c.volunteer_id = v.user_id
+    LEFT JOIN deliveries dl ON fa.alert_id = dl.donation_id
+    LEFT JOIN orphanages o ON dl.orphanage_id = o.orphanage_id
     WHERE c.volunteer_id = :vid 
       AND (
           UPPER(c.status) NOT IN ('COMPLETED', 'DELIVERED', 'CANCELLED')

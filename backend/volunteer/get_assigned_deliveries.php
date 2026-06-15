@@ -21,13 +21,16 @@ $sql = "
            fa.category, fa.preparation_time, fa.contact_number, fa.special_instructions,
            d.name as donor_name, n.name as ngo_name, c.status,
            fa.latitude as donor_lat, fa.longitude as donor_lng,
-           n.latitude as ngo_lat, n.longitude as ngo_lng,
+           o.orphanage_name, o.address as delivery_address, 
+           o.latitude as orphanage_lat, o.longitude as orphanage_lng,
            fa.city
     FROM claims c
     JOIN food_alerts fa ON c.alert_id = fa.alert_id
     JOIN users d ON fa.donor_id = d.user_id
     JOIN users n ON fa.assigned_ngo_id = n.user_id
-    WHERE c.volunteer_id = :id AND c.status NOT IN ('COMPLETED', 'CANCELLED', 'Delivered')
+    LEFT JOIN deliveries dl ON fa.alert_id = dl.donation_id
+    LEFT JOIN orphanages o ON dl.orphanage_id = o.orphanage_id
+    WHERE c.volunteer_id = :id AND c.status NOT IN ('COMPLETED', 'CANCELLED', 'DELIVERED')
     ORDER BY c.claimed_at DESC
 ";
 

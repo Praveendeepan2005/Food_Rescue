@@ -58,8 +58,8 @@ if (!$delivery) {
 include __DIR__ . '/../../includes/header.php';
 
 // Safe extraction
-$ngoLat = $delivery['NGO_LAT'] ?? 0;
-$ngoLng = $delivery['NGO_LNG'] ?? 0;
+$orpLat = $delivery['ORPHANAGE_LAT'] ?? 0;
+$orpLng = $delivery['ORPHANAGE_LNG'] ?? 0;
 $donorLat = $delivery['DONOR_LAT'] ?? 0;
 $donorLng = $delivery['DONOR_LNG'] ?? 0;
 $status = strtoupper($delivery['ALERT_STATUS'] ?? $delivery['CLAIM_STATUS'] ?? '');
@@ -200,10 +200,10 @@ if ($status === 'ACTIVE' || $status === 'ASSIGNED') {
                     </div>
                 </div>
                 <div style="text-align:right;">
-                    <div class="track-meta">Delivery Location</div>
-                    <div class="track-value"><i class="fa-solid fa-building-ngo"
-                            style="color:#2E7D32;margin-right:4px;"></i>
-                        <?= htmlspecialchars($delivery['NGO_NAME']) ?>
+                    <div class="track-meta">Recipient Location</div>
+                    <div class="track-value"><i class="fa-solid fa-house-chimney-window"
+                            style="color:#1d4ed8;margin-right:4px;"></i>
+                        <?= htmlspecialchars($delivery['ORPHANAGE_NAME'] ?? $delivery['NGO_NAME']) ?>
                     </div>
                 </div>
             </div>
@@ -234,8 +234,8 @@ if ($status === 'ACTIVE' || $status === 'ASSIGNED') {
     document.addEventListener("DOMContentLoaded", function () {
         let dLat = <?= json_encode((float) $donorLat) ?>;
         let dLng = <?= json_encode((float) $donorLng) ?>;
-        let nLat = <?= json_encode((float) $ngoLat) ?>;
-        let nLng = <?= json_encode((float) $ngoLng) ?>;
+        let nLat = <?= json_encode((float) $orpLat) ?>;
+        let nLng = <?= json_encode((float) $orpLng) ?>;
         const status = <?= json_encode($status) ?>;
 
         // Fallback to prevent gray rendering at Null Island [0,0]
@@ -266,32 +266,45 @@ if ($status === 'ACTIVE' || $status === 'ASSIGNED') {
             iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
         });
 
-        const donorMarker = L.marker([dLat, dLng], { icon: donorIcon }).addTo(map).bindPopup("<b>Pickup Point</b>");
-        const ngoMarker = L.marker([nLat, nLng], { icon: ngoIcon }).addTo(map).bindPopup("<b>NGO Drop-off Point</b>");
+        const donorMarker = L.marker([dLat, dLng], { icon: donorIcon }).addTo(map).bindPopup("<b>Pickup: Donor</b>");
+        const ngoMarker = L.marker([nLat, nLng], { icon: ngoIcon }).addTo(map).bindPopup("<b>Delivery: Orphanage</b>");
 
-        // Full route line (static background)
-        L.polyline([[dLat, dLng], [nLat, nLng]], { color: '#E5E7EB', weight: 4, dashArray: '5, 10' }).addTo(map);
+        // Full route line (static background) removed, using dynamic lines
 
         let volMarker = L.marker([dLat, dLng], { icon: volIcon }).addTo(map).bindPopup("<b>Connecting GPS...</b>");
-        let activeRoute;
+        let activeRoute1, activeRoute2;
 
         function updateRoute(userLat, userLng) {
-            if (activeRoute) map.removeLayer(activeRoute);
+            if (activeRoute1) map.removeLayer(activeRoute1);
+            if (activeRoute2) map.removeLayer(activeRoute2);
 
             const isPickedUp = ['FOOD_PICKED', 'PICKED_UP', 'DELIVERING', 'ON_DELIVERY', 'COMPLETED', 'DELIVERED'].includes(status);
             const targetLat = isPickedUp ? nLat : dLat;
             const targetLng = isPickedUp ? nLng : dLng;
-            const routeColor = isPickedUp ? '#2E7D32' : '#8b5cf6';
 
-            activeRoute = L.polyline([[userLat, userLng], [targetLat, targetLng]], {
-                color: routeColor,
-                weight: 5,
-                opacity: 0.8,
-                dashArray: isPickedUp ? '1, 10' : '2, 5'
-            }).addTo(map);
+            if (isPickedUp) {
+                activeRoute1 = L.polyline([[userLat, userLng], [nLat, nLng]], {
+                    color: '#2E7D32', weight: 5, opacity: 0.9, dashArray: '1, 10'
+                }).addTo(map);
+
+                activeRoute2 = L.polyline([[dLat, dLng], [userLat, userLng]], {
+                    color: '#9CA3AF', weight: 4, opacity: 0.6, dashArray: '5, 5'
+                }).addTo(map);
+
+                volMarker.setPopupContent("<b>Heading to Orphanage</b>");
+            } else {
+                activeRoute1 = L.polyline([[userLat, userLng], [dLat, dLng]], {
+                    color: '#8b5cf6', weight: 5, opacity: 0.9, dashArray: '1, 10'
+                }).addTo(map);
+
+                activeRoute2 = L.polyline([[dLat, dLng], [nLat, nLng]], {
+                    color: '#f59e0b', weight: 4, opacity: 0.6, dashArray: '5, 5'
+                }).addTo(map);
+
+                volMarker.setPopupContent("<b>Heading to Donor</b>");
+            }
 
             volMarker.setLatLng([userLat, userLng]);
-            volMarker.setPopupContent(isPickedUp ? "<b>Heading to NGO</b>" : "<b>Heading to Pickup</b>");
 
             const bounds = L.latLngBounds([[userLat, userLng], [dLat, dLng], [nLat, nLng]]);
             map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });

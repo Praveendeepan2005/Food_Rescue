@@ -19,13 +19,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($action === 'ASSIGN') {
             $volId = (int) $_POST['volunteer_id'];
+            $orpId = (int) $_POST['orphanage_id'];
             $res = apiCall('/ngo/assign_volunteer.php', [
                 'alert_id' => $alertId,
                 'volunteer_id' => $volId,
-                'ngo_id' => $ngoId
+                'ngo_id' => $ngoId,
+                'orphanage_id' => $orpId
             ]);
             $_SESSION['flash'] = $res['success']
-                ? ['type' => 'success', 'msg' => 'Volunteer assigned successfully!']
+                ? ['type' => 'success', 'msg' => 'Volunteer assigned to mission successfully!']
                 : ['type' => 'error', 'msg' => $res['message'] ?? 'Failed to assign volunteer.'];
         } else {
             // PICKUP or COMPLETE
@@ -50,6 +52,10 @@ $items = $data['data']['donations'] ?? [];
 // Fetch Volunteers for the assignment modal
 $volData = apiCall("/ngo/get_volunteers.php?ngo_id={$ngoId}", [], 'GET');
 $volunteers = $volData['data']['volunteers'] ?? [];
+
+// Fetch Orphanages for the assignment modal
+$orpData = apiCall("/ngo/get_orphanages.php?ngo_id={$ngoId}", [], 'GET');
+$orpList = $orpData['data']['orphanages'] ?? [];
 
 // Fetch Dashboard Analytics for Monthly Chart
 $dashData = apiCall("/ngo/get_ngo_dashboard.php?ngo_id={$ngoId}", [], 'GET');
@@ -100,6 +106,7 @@ include __DIR__ . '/../../includes/header.php';
                             <th>Donor Name</th>
                             <th>Location</th>
                             <th>Volunteer</th>
+                            <th>Recipient</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -126,6 +133,15 @@ include __DIR__ . '/../../includes/header.php';
                                         </div>
                                     <?php else: ?>
                                         <span style="color:#f59e0b;font-weight:600;font-size:0.85rem;">Unassigned</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($r['ORPHANAGE_NAME']): ?>
+                                        <div style="font-size:0.8rem; color:#1e40af; font-weight:600;">
+                                            <i class="fa-solid fa-house-chimney-window"></i> <?= htmlspecialchars($r['ORPHANAGE_NAME']) ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <span style="color:#9CA3AF; font-size:0.75rem;">Not set</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -202,10 +218,8 @@ include __DIR__ . '/../../includes/header.php';
             </p>
 
             <div class="form-group">
-                <label style="display:block;margin-bottom:8px;font-weight:600;font-size:0.85rem;">Select Active
-                    Volunteer</label>
-                <select name="volunteer_id" required
-                    style="width:100%;padding:10px;border:1px solid #E5E7EB;border-radius:6px;outline:none;">
+                <label style="display:block;margin-bottom:8px;font-weight:600;font-size:0.85rem;">Select Active Volunteer</label>
+                <select name="volunteer_id" required style="width:100%;padding:10px;border:1px solid #E5E7EB;border-radius:6px;outline:none;margin-bottom:16px;">
                     <?php if (empty($volunteers)): ?>
                         <option value="" disabled>No volunteers registered</option>
                     <?php else: ?>
@@ -218,9 +232,28 @@ include __DIR__ . '/../../includes/header.php';
                 </select>
             </div>
 
+            <div class="form-group">
+                <label style="display:block;margin-bottom:8px;font-weight:600;font-size:0.85rem;">Select Delivery Location (Orphanage)</label>
+                <select name="orphanage_id" required style="width:100%;padding:10px;border:1px solid #E5E7EB;border-radius:6px;outline:none;">
+                    <?php if (empty($orpList)): ?>
+                        <option value="" disabled>No recipient locations added</option>
+                    <?php else: ?>
+                        <?php foreach ($orpList as $o): ?>
+                            <option value="<?= $o['ORPHANAGE_ID'] ?>">
+                                <?= htmlspecialchars($o['ORPHANAGE_NAME']) ?> - <?= htmlspecialchars($o['ADDRESS']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
+                <?php if (empty($orpList)): ?>
+                    <p style="font-size:0.75rem; color:#ef4444; margin-top:6px;">
+                        <i class="fa-solid fa-circle-info"></i> Please <a href="/pages/ngo/orphanages.php" style="text-decoration:underline;">add a location</a> first.
+                    </p>
+                <?php endif; ?>
+            </div>
+
             <div style="margin-top:28px;display:flex;gap:12px;">
-                <button type="submit" class="btn btn-primary" style="flex:1;background:#8b5cf6;">Confirm
-                    Assignment</button>
+                <button type="submit" class="btn btn-primary" style="flex:1;background:#8b5cf6;" <?= empty($orpList) ? 'disabled' : '' ?>>Confirm Assignment</button>
                 <button type="button" onclick="closeAssignModal()" class="btn btn-outline"
                     style="flex:1;">Cancel</button>
             </div>

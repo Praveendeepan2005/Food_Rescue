@@ -24,6 +24,7 @@ if ($role === 'DONOR') {
         ['icon' => 'fa-gauge', 'label' => 'Dashboard', 'href' => '/dashboard.php', 'page' => 'overview'],
         ['icon' => 'fa-box-open', 'label' => 'Available Donations', 'href' => '/pages/ngo/available.php', 'page' => 'available'],
         ['icon' => 'fa-hand-holding', 'label' => 'Accepted Donations', 'href' => '/pages/ngo/accepted.php', 'page' => 'accepted'],
+        ['icon' => 'fa-house-chimney-window', 'label' => 'Recipient Locations', 'href' => '/pages/ngo/orphanages.php', 'page' => 'orphanages'],
         ['icon' => 'fa-people-group', 'label' => 'Volunteers', 'href' => '/pages/ngo/volunteers.php', 'page' => 'volunteers'],
         ['icon' => 'fa-user', 'label' => 'Profile', 'href' => '/pages/ngo/profile.php', 'page' => 'profile'],
     ];

@@ -50,6 +50,7 @@ $sql = "SELECT
         SUM(CASE WHEN status NOT IN ('COMPLETED', 'EXPIRED', 'CANCELLED', 'EXPIRED_ALERT', 'VOID') THEN 1 ELSE 0 END) as active_alerts,
         SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) as completed_rescues,
         SUM(CASE WHEN status = 'EXPIRED' THEN 1 ELSE 0 END) as expired_alerts,
+        SUM(quantity) as food_distributed,
         COUNT(*) as total_alerts
         FROM food_alerts";
 $stmt = oci_parse($conn, $sql);
@@ -59,10 +60,19 @@ $active = (int) ($row['ACTIVE_ALERTS'] ?? 0);
 $completed = (int) ($row['COMPLETED_RESCUES'] ?? 0);
 $expired = (int) ($row['EXPIRED_ALERTS'] ?? 0);
 $total = (int) ($row['TOTAL_ALERTS'] ?? 0);
+$foodDist = (int) ($row['FOOD_DISTRIBUTED'] ?? 0);
+
+// Orphanages count
+$orpCountSt = oci_parse($conn, "SELECT count(*) as cnt FROM orphanages");
+oci_execute($orpCountSt);
+$orpRow = oci_fetch_assoc($orpCountSt);
+$totalOrp = (int) ($orpRow['CNT'] ?? 0);
 
 $stats['top_cards']['active_alerts'] = $active;
 $stats['top_cards']['completed_rescues'] = $completed;
 $stats['top_cards']['expired_alerts'] = $expired;
+$stats['top_cards']['total_orphanages'] = $totalOrp;
+$stats['top_cards']['food_distributed'] = $foodDist;
 $stats['top_cards']['completion_rate'] = $total > 0 ? round(($completed / $total) * 100, 1) : 0;
 oci_free_statement($stmt);
 

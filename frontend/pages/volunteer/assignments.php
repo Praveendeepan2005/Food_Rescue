@@ -282,7 +282,11 @@ $statusBadgeColors = [
                             <div class="ac-meta-item"><i
                                     class="fa-solid fa-user"></i><?= htmlspecialchars($a['DONOR_NAME'] ?? '—') ?></div>
                             <div class="ac-meta-item"><i
-                                    class="fa-solid fa-location-dot"></i><?= htmlspecialchars(substr($a['PICKUP_ADDRESS'] ?? '—', 0, 50)) ?>
+                                    class="fa-solid fa-location-dot"></i><?= htmlspecialchars(substr($a['PICKUP_ADDRESS'] ?? '—', 0, 40)) ?>
+                            </div>
+                            <div class="ac-meta-item">
+                                <i class="fa-solid fa-house-chimney-window" style="color:#1d4ed8;"></i>
+                                <span style="font-weight:600; color:#1e40af;">Deliver: <?= htmlspecialchars($a['ORPHANAGE_NAME'] ?? 'NGO Center') ?></span>
                             </div>
                             <div class="ac-meta-item"><i
                                     class="fa-solid fa-building"></i><?= htmlspecialchars($a['NGO_NAME'] ?? '—') ?></div>

@@ -31,10 +31,26 @@ $donorCount = oci_parse($conn, "SELECT count(*) as cnt FROM users WHERE role = '
 oci_execute($donorCount);
 $stats['total_donors'] = (int) oci_fetch_assoc($donorCount)['CNT'];
 
+// Total Orphanages (New)
+$orpCount = oci_parse($conn, "SELECT count(*) as cnt FROM orphanages");
+oci_execute($orpCount);
+$stats['total_orphanages'] = (int) oci_fetch_assoc($orpCount)['CNT'];
+
 // Total Donations
 $donCount = oci_parse($conn, "SELECT count(*) as cnt FROM food_alerts");
 oci_execute($donCount);
 $stats['total_donations'] = (int) oci_fetch_assoc($donCount)['CNT'];
+
+// Total Deliveries Tracked (New table)
+$delCountMain = oci_parse($conn, "SELECT count(*) as cnt FROM deliveries");
+oci_execute($delCountMain);
+$stats['total_deliveries_tracked'] = (int) oci_fetch_assoc($delCountMain)['CNT'];
+
+// Total Food Distributed (Quantity sum)
+$sumFood = oci_parse($conn, "SELECT SUM(quantity) as val FROM food_alerts WHERE status = 'COMPLETED'");
+oci_execute($sumFood);
+$rowSum = oci_fetch_assoc($sumFood);
+$stats['food_distributed'] = (int) ($rowSum['VAL'] ?? 0);
 
 // Total Deliveries Completed
 $delCount = oci_parse($conn, "SELECT count(*) as cnt FROM food_alerts WHERE status = 'COMPLETED'");

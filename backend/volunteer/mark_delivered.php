@@ -70,6 +70,12 @@ if (!oci_execute($upC, OCI_NO_AUTO_COMMIT)) {
     sendError('Error completing claim: ' . $err['message'], 500);
 }
 
+// Update deliveries table
+$upDel = oci_parse($conn, "UPDATE deliveries SET status = 'DELIVERED', completed_at = SYSDATE WHERE donation_id = :aid AND volunteer_id = :vid");
+oci_bind_by_name($upDel, ':aid', $alertId);
+oci_bind_by_name($upDel, ':vid', $volId);
+oci_execute($upDel, OCI_NO_AUTO_COMMIT);
+
 // Award Points / Rewards
 $getClaimIdSql = "SELECT claim_id FROM claims WHERE alert_id = :aid AND volunteer_id = :vid ORDER BY claimed_at DESC FETCH FIRST 1 ROWS ONLY";
 $gcStmt = oci_parse($conn, $getClaimIdSql);

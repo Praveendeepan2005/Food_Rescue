@@ -18,12 +18,15 @@ $conn = getDBConnection();
 $sql = "
     SELECT c.claim_id, c.alert_id, fa.food_type, fa.quantity, fa.pickup_address, 
            fa.category, fa.preparation_time, fa.contact_number, fa.special_instructions,
-           d.name as donor_name, n.name as ngo_name, c.status
+           d.name as donor_name, n.name as ngo_name, c.status,
+           o.orphanage_name, o.address as delivery_address, o.phone_number as orphanage_phone
     FROM claims c
     JOIN food_alerts fa ON c.alert_id = fa.alert_id
     JOIN users d ON fa.donor_id = d.user_id
     JOIN users n ON fa.assigned_ngo_id = n.user_id
-    WHERE c.volunteer_id = :id AND c.status != 'COMPLETED' AND c.status != 'CANCELLED'
+    LEFT JOIN deliveries dl ON fa.alert_id = dl.donation_id
+    LEFT JOIN orphanages o ON dl.orphanage_id = o.orphanage_id
+    WHERE c.volunteer_id = :id AND c.status NOT IN ('COMPLETED', 'CANCELLED', 'DELIVERED')
     ORDER BY c.claimed_at DESC
 ";
 

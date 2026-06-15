@@ -40,6 +40,13 @@ if (@oci_execute($stmt)) {
     oci_bind_by_name($as, ':id', $claimId);
     oci_execute($as);
 
+    // Synchronize deliveries table
+    $delSyncSql = "UPDATE deliveries SET status = :status WHERE donation_id = (SELECT alert_id FROM claims WHERE claim_id = :id)";
+    $ds = oci_parse($conn, $delSyncSql);
+    oci_bind_by_name($ds, ':status', $status);
+    oci_bind_by_name($ds, ':id', $claimId);
+    oci_execute($ds);
+
     // ════════════════════════════════════════════════════════════
     // Award points when mission is DELIVERED or COMPLETED
     // ════════════════════════════════════════════════════════════

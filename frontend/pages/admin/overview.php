@@ -27,13 +27,13 @@ include __DIR__ . '/../../includes/header.php';
         <!-- Top Cards -->
         <div class="stats-grid reveal">
             <div class="stat-card">
-                <span class="label">Total Users</span>
-                <span class="value">
-                    <span class="count-up" data-target="<?= $cards['total_users'] ?? 0 ?>">0</span>
+                <span class="label">Total Orphanages</span>
+                <span class="value" style="color:#1d4ed8;">
+                    <span class="count-up" data-target="<?= $cards['total_orphanages'] ?? 0 ?>">0</span>
                 </span>
             </div>
             <div class="stat-card">
-                <span class="label">Active Alerts</span>
+                <span class="label">Active Missions</span>
                 <span class="value" style="color:#f59e0b;">
                     <span class="count-up" data-target="<?= $cards['active_alerts'] ?? 0 ?>">0</span>
                 </span>
@@ -45,9 +45,10 @@ include __DIR__ . '/../../includes/header.php';
                 </span>
             </div>
             <div class="stat-card">
-                <span class="label">Completion Rate</span>
+                <span class="label">Food Distributed</span>
                 <span class="value" style="color:#0d9488;">
-                    <span class="count-up" data-target="<?= $cards['completion_rate'] ?? 0 ?>">0</span>%
+                    <span class="count-up" data-target="<?= $cards['food_distributed'] ?? 0 ?>">0</span>
+                    <small style="font-size:0.8rem; font-weight:600;">Portions</small>
                 </span>
             </div>
         </div>

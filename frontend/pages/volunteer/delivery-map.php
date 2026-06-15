@@ -95,7 +95,7 @@ include __DIR__ . '/../../includes/header.php';
                         <tr>
                             <th>Donation ID</th>
                             <th>Food Name</th>
-                            <th>Target NGO</th>
+                            <th>Target Recipient</th>
                             <th>Current Status</th>
                             <th>Action</th>
                         </tr>
@@ -105,15 +105,15 @@ include __DIR__ . '/../../includes/header.php';
                             $status = strtoupper($d['STATUS'] ?? 'PENDING');
                             $dLat = (float) ($d['DONOR_LAT'] ?? 0);
                             $dLng = (float) ($d['DONOR_LNG'] ?? 0);
-                            $nLat = (float) ($d['NGO_LAT'] ?? 0);
-                            $nLng = (float) ($d['NGO_LNG'] ?? 0);
+                            $nLat = (float) ($d['ORPHANAGE_LAT'] ?? 0);
+                            $nLng = (float) ($d['ORPHANAGE_LNG'] ?? 0);
                             ?>
                             <tr class="tr-clickable"
                                 onclick="focusRoute(<?= $d['ALERT_ID'] ?>, <?= $dLat ?>, <?= $dLng ?>, <?= $nLat ?>, <?= $nLng ?>, this)">
                                 <td><strong>#<?= $d['ALERT_ID'] ?></strong></td>
                                 <td><?= htmlspecialchars($d['FOOD_TYPE'] ?? '—') ?></td>
-                                <td><i class="fa-solid fa-building-ngo" style="color:#2E7D32;margin-right:4px;"></i>
-                                    <?= htmlspecialchars($d['NGO_NAME'] ?? '—') ?>
+                                <td><i class="fa-solid fa-house-chimney-window" style="color:#1d4ed8;margin-right:4px;"></i>
+                                    <?= htmlspecialchars($d['ORPHANAGE_NAME'] ?? $d['NGO_NAME'] ?? '—') ?>
                                 </td>
                                 <td><span class="badge badge-<?= strtolower($status) ?>"><?= $status ?></span></td>
                                 <td>
@@ -189,8 +189,8 @@ include __DIR__ . '/../../includes/header.php';
 
                 const dLat = parseFloat(d.DONOR_LAT || 12.9716);
                 const dLng = parseFloat(d.DONOR_LNG || 77.5946);
-                const nLat = parseFloat(d.NGO_LAT || dLat + 0.02);
-                const nLng = parseFloat(d.NGO_LNG || dLng + 0.02);
+                const nLat = parseFloat(d.ORPHANAGE_LAT || dLat + 0.02);
+                const nLng = parseFloat(d.ORPHANAGE_LNG || dLng + 0.02);
 
                 if (isFinished) {
                     const finishM = L.marker([nLat, nLng], { icon: finishIcon }).bindPopup('<b>Task Finished</b><br>Delivery #' + aid);
@@ -198,21 +198,32 @@ include __DIR__ . '/../../includes/header.php';
                     L.polyline([[dLat, dLng], [nLat, nLng]], { color: '#E5E7EB', weight: 2 }).addTo(globalSet);
                 } else {
                     const dM = L.marker([dLat, dLng], { icon: donorIcon }).bindPopup('<b>Donor</b> (#' + aid + ')');
-                    const nM = L.marker([nLat, nLng], { icon: ngoIcon }).bindPopup('<b>NGO</b> (#' + aid + ')');
+                    const nM = L.marker([nLat, nLng], { icon: ngoIcon }).bindPopup('<b>Orphanage</b> (#' + aid + ')');
                     const vM = L.marker([userPos.lat, userPos.lng], { icon: volIcon }).bindPopup('<b>Your Position</b>');
 
                     globalSet.addLayer(dM);
                     globalSet.addLayer(nM);
                     globalSet.addLayer(vM);
 
-                    const targetLat = isPickedUp ? nLat : dLat;
-                    const targetLng = isPickedUp ? nLng : dLng;
-                    const routeCol = isPickedUp ? '#2E7D32' : '#8b5cf6';
+                    let mainLine, secondLine;
 
-                    const route = L.polyline([[userPos.lat, userPos.lng], [targetLat, targetLng]], {
-                        color: routeCol, weight: 5, opacity: 0.8, dashArray: '5, 10'
-                    }).addTo(globalSet);
-                    trackingLines[aid] = route;
+                    if (isPickedUp) {
+                        mainLine = L.polyline([[userPos.lat, userPos.lng], [nLat, nLng]], {
+                            color: '#2E7D32', weight: 5, opacity: 0.8, dashArray: '1, 10'
+                        }).addTo(globalSet);
+                        secondLine = L.polyline([[dLat, dLng], [userPos.lat, userPos.lng]], {
+                            color: '#9CA3AF', weight: 3, opacity: 0.6, dashArray: '5, 5'
+                        }).addTo(globalSet);
+                    } else {
+                        mainLine = L.polyline([[userPos.lat, userPos.lng], [dLat, dLng]], {
+                            color: '#8b5cf6', weight: 5, opacity: 0.8, dashArray: '1, 10'
+                        }).addTo(globalSet);
+                        secondLine = L.polyline([[dLat, dLng], [nLat, nLng]], {
+                            color: '#f59e0b', weight: 3, opacity: 0.6, dashArray: '5, 5'
+                        }).addTo(globalSet);
+                    }
+                    
+                    trackingLines[aid] = L.layerGroup([mainLine, secondLine]).addTo(globalSet);
                 }
             });
 
@@ -247,11 +258,22 @@ include __DIR__ . '/../../includes/header.php';
         document.querySelectorAll('.tr-clickable').forEach(el => el.classList.remove('route-active'));
         row.classList.add('route-active');
 
-        Object.values(trackingLines).forEach(line => line.setStyle({ color: '#9CA3AF', weight: 4, opacity: 0.5 }));
+        Object.values(trackingLines).forEach(item => {
+            if (item.setStyle) item.setStyle({ color: '#9CA3AF', weight: 4, opacity: 0.5, dashArray: '' });
+            else if (item.eachLayer) item.eachLayer(layer => layer.setStyle({ color: '#9CA3AF', weight: 4, opacity: 0.5, dashArray: '' }));
+        });
 
         if (trackingLines[alertId]) {
-            trackingLines[alertId].setStyle({ color: '#2E7D32', weight: 6, opacity: 1 });
-            trackingLines[alertId].bringToFront();
+            let selected = trackingLines[alertId];
+            if (selected.setStyle) {
+                selected.setStyle({ color: '#2E7D32', weight: 6, opacity: 1, dashArray: '5, 10' });
+                if (selected.bringToFront) selected.bringToFront();
+            } else if (selected.eachLayer) {
+                selected.eachLayer(layer => {
+                    layer.setStyle({ color: '#2E7D32', weight: 6, opacity: 1, dashArray: '5, 10' });
+                    if (layer.bringToFront) layer.bringToFront();
+                });
+            }
 
             let bounds = [];
             if (dLat != 0) bounds.push([dLat, dLng]);

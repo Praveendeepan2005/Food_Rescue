@@ -484,49 +484,60 @@ $action = $statusFlow[$status] ?? null;
                     </div>
                 </div>
 
-                <!-- NGO Info -->
+                <!-- Recipient Info -->
                 <div class="info-card">
                     <div class="info-card-title">
                         <div
                             style="width:28px;height:28px;border-radius:7px;background:#2E7D3218;color:#2E7D32;display:flex;align-items:center;justify-content:center;">
-                            <i class="fa-solid fa-building"></i>
+                            <i class="fa-solid fa-house-chimney-window"></i>
                         </div>
-                        NGO Information
+                        Delivery Recipient
                     </div>
+                    <?php if (!empty($d['ORPHANAGE_NAME'])): ?>
+                    <div class="info-row">
+                        <div class="info-icon" style="background:#2E7D3218;color:#2E7D32;"><i
+                                class="fa-solid fa-house-chimney"></i></div>
+                        <div>
+                            <div class="info-label">Orphanage/Center</div>
+                            <div class="info-val">
+                                <?= htmlspecialchars($d['ORPHANAGE_NAME']) ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon" style="background:#2E7D3218;color:#2E7D32;"><i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div>
+                            <div class="info-label">Delivery Address</div>
+                            <div class="info-val">
+                                <?= htmlspecialchars($d['DELIVERY_ADDRESS'] ?? '—') ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon" style="background:#2E7D3218;color:#2E7D32;"><i
+                                class="fa-solid fa-phone"></i></div>
+                        <div>
+                            <div class="info-label">Contact</div>
+                            <div class="info-val">
+                                <?= htmlspecialchars($d['ORPHANAGE_PHONE'] ?? $d['ORPHANAGE_CONTACT'] ?? '—') ?>
+                            </div>
+                        </div>
+                    </div>
+                    <?php else: ?>
                     <div class="info-row">
                         <div class="info-icon" style="background:#2E7D3218;color:#2E7D32;"><i
                                 class="fa-solid fa-building"></i></div>
                         <div>
-                            <div class="info-label">NGO Name</div>
+                            <div class="info-label">Assigned NGO</div>
                             <div class="info-val">
                                 <?= htmlspecialchars($d['NGO_NAME'] ?? '—') ?>
                             </div>
                         </div>
                     </div>
-                    <div class="info-row">
-                        <div class="info-icon" style="background:#2E7D3218;color:#2E7D32;"><i class="fa-solid fa-phone"></i>
-                        </div>
-                        <div>
-                            <div class="info-label">Contact Number</div>
-                            <div class="info-val">
-                                <a href="tel:<?= htmlspecialchars($d['NGO_PHONE'] ?? '') ?>"
-                                    style="color:#2E7D32;text-decoration:none;">
-                                    <?= htmlspecialchars($d['NGO_PHONE'] ?? '—') ?>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <?php if (!empty($d['NGO_ADDRESS'])): ?>
-                        <div class="info-row">
-                            <div class="info-icon" style="background:#2E7D3218;color:#2E7D32;"><i
-                                    class="fa-solid fa-map-pin"></i></div>
-                            <div>
-                                <div class="info-label">NGO Address</div>
-                                <div class="info-val">
-                                    <?= htmlspecialchars($d['NGO_ADDRESS']) ?>
-                                </div>
-                            </div>
-                        </div>
+                    <p style="font-size:0.75rem; color:#6B7280; font-style:italic; margin-top:8px;">
+                        Specific recipient location not yet assigned by NGO.
+                    </p>
                     <?php endif; ?>
                 </div>
 
